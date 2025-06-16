@@ -104,7 +104,7 @@ public class tabQuanLyHoaDon extends javax.swing.JPanel {
         for(HoaDon hd: layDuLieu.getDsHoaDon()){
             long tienTruoc = (long) hd.getTongTienTruocGiam();
             long tienDuocGiam = (long) hd.getSoTienGiam();
-            long tienDaGiam = (long) hd.getTongTienTruocGiam();
+            long tienDaGiam = (long) hd.getTongTienPhaiTra();
             cbMaHoaDon.addItem(String.valueOf(hd.getMaHoaDon()));
             String tenKM = "";
             for(KhuyenMai km: layDuLieu.getDsKhuyenMai()){
