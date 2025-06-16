@@ -63,12 +63,13 @@ public class tabQuanLyMonAn extends javax.swing.JPanel {
         
         Set<String> set = new HashSet<>();
         for(MonAn mon: layDuLieu.getDsMonAn()){
+            long donGia = (long) mon.getDonGia();
             set.add(mon.getDonViTinh());
             tableModel.addRow(new Object[]{
                 mon.getMaMonAn(),
                 mon.getTenMon(),
                 mon.getDonViTinh(),
-                mon.getDonGia(),
+                donGia,
                 mon.getTrangThai(),
                 mon.getMaNhom()
             });

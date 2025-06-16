@@ -66,6 +66,7 @@ public class tabQuanLyNhanVien extends javax.swing.JPanel {
         model.addColumn("Mã quản lý");
         model.addColumn("Lương cơ bản");
         for(NhanVien nv : layDuLieu.getDsNhanVien()){
+            long lcb = (long) nv.getLuongCoBan();
             model.addRow(new Object[]{
                 nv.getMaNhanVien(),
                 nv.getHoTen(),
@@ -75,7 +76,7 @@ public class tabQuanLyNhanVien extends javax.swing.JPanel {
                 nv.getDiaChi(),
                 nv.getChucVu(),
                 nv.getMaQuanLy(),
-                nv.getLuongCoBan()
+                lcb
             });
         }
         
@@ -448,21 +449,20 @@ public class tabQuanLyNhanVien extends javax.swing.JPanel {
             return;
         }
 
-        int luongCoBan;
+        double luongCoBan;
         try {
-            luongCoBan = Integer.parseInt(txtLuongCoBan.getText());
+            luongCoBan = Double.parseDouble(txtLuongCoBan.getText());
         } catch (NumberFormatException e) {
             JOptionPane.showMessageDialog(this, "Lương cơ bản phải là một con số.", "Lỗi định dạng", JOptionPane.ERROR_MESSAGE);
             return;
         }
 
         Integer maQuanLy = null;
-        if (!chucVu.trim().equals("Quản lý")) {
+        if (!chucVu.trim().equals("Quản lý nhân sự") || !chucVu.trim().equals("Quản lý kho và bếp")) {
             if (nguoiQuanLySelected.isEmpty()) {
                 JOptionPane.showMessageDialog(this, "Nhân viên phải có người quản lý.", "Lỗi logic", JOptionPane.ERROR_MESSAGE);
                 return;
             }
-            // Lấy mã quản lý từ tên được chọn
             for (NhanVien nv : layDuLieu.getDsNhanVien()) {
                 if (nv.getHoTen().trim().equals(nguoiQuanLySelected.trim())) {
                     maQuanLy = nv.getMaNhanVien();
@@ -473,7 +473,7 @@ public class tabQuanLyNhanVien extends javax.swing.JPanel {
                 JOptionPane.showMessageDialog(this, "Không tìm thấy người quản lý được chọn.", "Lỗi dữ liệu", JOptionPane.ERROR_MESSAGE);
                 return;
             }
-        } else { // Nếu chức vụ là "Quản lý"
+        } else { 
             if (!nguoiQuanLySelected.isEmpty()) {
                 JOptionPane.showMessageDialog(this, "Một Quản lý không có người quản lý.", "Lỗi logic", JOptionPane.ERROR_MESSAGE);
                 return;

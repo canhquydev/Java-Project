@@ -55,13 +55,17 @@ public class tabThongKe extends javax.swing.JPanel {
             String sql = "select * from PHIEUTHONGKE";
             PreparedStatement stmt = conn.prepareStatement(sql);
             ResultSet rs = stmt.executeQuery();
+            
             while (rs.next()) {
+                long doanhThu = (long)rs.getDouble("DoanhThu");
+                long thu = (long) rs.getDouble("Thu");
+                long chi = (long) rs.getDouble("Chi");
                 model.addRow(new Object[]{
                     rs.getInt("MaPhieu"),
                     rs.getDate("NgayThongKe"),
-                    rs.getDouble("DoanhThu"),
-                    rs.getDouble("Thu"),
-                    rs.getDouble("Chi")
+                    doanhThu,
+                    thu,
+                    chi
                 });
             }
             tableThongKe.setModel(model);
@@ -281,12 +285,16 @@ public class tabThongKe extends javax.swing.JPanel {
             stmt.setDate(2, new java.sql.Date(endDate.getTime()));
 
             ResultSet rs = stmt.executeQuery();
+            
             while (rs.next()) {
+                long doanhThu = (long) rs.getDouble("DoanhThu");
+                long thu = (long) rs.getDouble("Thu");
+                long chi = (long) rs.getDouble("Chi");
                 model.addRow(new Object[]{
                     rs.getString("ThoiGian"),
-                    rs.getDouble("DoanhThu"),
-                    rs.getDouble("Thu"),
-                    rs.getDouble("Chi"),
+                    doanhThu,
+                    thu,
+                    chi,
                 });
             }
             tableThongKe.setModel(model);

@@ -24,7 +24,7 @@ public class QuanLyNhanSu extends javax.swing.JFrame {
         initComponents();
         tabbedPane.addTab("Quản lý nhân viên", new tabQuanLyNhanVien());
         tabbedPane.addTab("Quản lý ca làm việc", new tabQuanLyCaLamViec());
-        tabbedPane.addTab("Quản lý tài khoản", new tabQuanLyTaiKhoan());
+        tabbedPane.addTab("Quản lý tài khoản", new tabQuanLyTaiKhoan(maNV));
         tabbedPane.addTab("Xem đánh giá", new tabXemDanhGia());
         tabbedPane.addTab("Thống kê doanh thu", new tabThongKe());
         setIconImage(new ImageIcon(getClass().getResource("/Images/quanlynhansu.png")).getImage());

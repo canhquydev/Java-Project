@@ -63,13 +63,14 @@ public class tabQuanLyNguyenLieu extends javax.swing.JPanel {
         for(NguyenLieu nl : layDuLieu.getDsNguyenLieu()){
             set.add(nl.getLoai());
             set1.add(nl.getDonViTinh());
+            long giaBan = (long) nl.getGiaBan();
             model.addRow(new Object[]{
                 nl.getMaNguyenLieu(),
                 nl.getTenNguyenLieu(),
                 nl.getLoai(),
                 nl.getNgaySanXuat(),
                 nl.getHanSuDung(),
-                nl.getGiaBan(),
+                giaBan,
                 nl.getDonViTinh(),
                 nl.getSoLuongTon()
             });

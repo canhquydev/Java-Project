@@ -30,8 +30,13 @@ public class tabQuanLyTaiKhoan extends javax.swing.JPanel {
     DefaultTableModel tableModel;
     int selectedRow = -1;
     layDuLieuSQL layDuLieu = new layDuLieuSQL();
+    int maNV = -1;
     public tabQuanLyTaiKhoan() {
         initComponents();
+    }
+    public tabQuanLyTaiKhoan(int maNV) {
+        initComponents();
+        this.maNV = maNV;
         layDuLieu();
         tbHienThiTaiKhoan.setShowGrid(true);
         tbHienThiTaiKhoan.setGridColor(new Color(224, 224, 224));
@@ -44,7 +49,6 @@ public class tabQuanLyTaiKhoan extends javax.swing.JPanel {
         FlatSVGIcon iconRefresh = new FlatSVGIcon("Images/refresh.svg", 25, 25);
         btnLamMoi.setIcon(iconRefresh);
     }
-
     public void layDuLieu(){
         tableModel = new DefaultTableModel(){
             @Override
@@ -477,7 +481,12 @@ public class tabQuanLyTaiKhoan extends javax.swing.JPanel {
         }
 
         int maTaiKhoan = Integer.parseInt(tableModel.getValueAt(selectedRow, 0).toString());
-        
+        for(TaiKhoan tk: layDuLieu.getDsTaiKhoan()){
+            if(tk.getMaTaiKhoan() == maTaiKhoan){
+                JOptionPane.showMessageDialog(this, "Tài khoản đang được sử dụng, không thể xoá", "Lỗi", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+        }
         String sql = "{call sp_XoaTaiKhoan(?)}"; 
         try (Connection conn = CRUD.ConnectSQL.getConnection(); 
              CallableStatement cs = conn.prepareCall(sql)) {
