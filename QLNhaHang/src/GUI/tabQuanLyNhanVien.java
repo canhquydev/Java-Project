@@ -11,6 +11,7 @@ import com.formdev.flatlaf.extras.FlatSVGIcon;
 import java.awt.Color;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.CallableStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Date;
@@ -96,7 +97,7 @@ public class tabQuanLyNhanVien extends javax.swing.JPanel {
         cbNguoiQuanLy.removeAllItems();
         cbNguoiQuanLy.addItem("");
         for(NhanVien nv : layDuLieu.getDsNhanVien()){
-            if(nv.getChucVu().trim().equals("Quản lý")){
+            if((nv.getChucVu().trim().equals("Quản lý nhân sự")) || (nv.getChucVu().trim().equals("Quản lý kho và bếp"))){
                 cbNguoiQuanLy.addItem(nv.getHoTen());
             }
         }
@@ -479,69 +480,94 @@ public class tabQuanLyNhanVien extends javax.swing.JPanel {
             }
         }
 
-        // 4. Thực thi thêm vào cơ sở dữ liệu
-        Connection conn = null;
-        try {
-            conn = ConnectSQL.getConnection();
-            conn.setAutoCommit(false);
+        String sql = "{call sp_ThemNhanVien(?, ?, ?, ?, ?, ?, ?, ?)}"; 
+        try (Connection conn = CRUD.ConnectSQL.getConnection(); 
+             CallableStatement cs = conn.prepareCall(sql)) {
 
-            String checkSdtSql = "SELECT COUNT(*) FROM NHANVIEN WHERE soDienThoai = ?";
-            try (PreparedStatement checkStmt = conn.prepareStatement(checkSdtSql)) {
-                checkStmt.setString(1, soDienThoai);
-                ResultSet rs = checkStmt.executeQuery();
-                if (rs.next() && rs.getInt(1) > 0) {
-                    JOptionPane.showMessageDialog(this, "Số điện thoại đã tồn tại trong hệ thống.", "Lỗi trùng lặp", JOptionPane.ERROR_MESSAGE);
-                    conn.rollback(); // Hủy transaction
-                    return;
-                }
+            cs.setString(1, hoTen);
+            cs.setString(2, strNgaySinh);
+            cs.setString(3, gioiTinh);
+            cs.setString(4, soDienThoai);
+            cs.setString(5, diaChi);
+            cs.setString(6, chucVu);
+            if (maQuanLy == null) {
+                cs.setNull(7, java.sql.Types.INTEGER);
+            } else {
+                cs.setInt(7, maQuanLy);
             }
+            cs.setDouble(8, luongCoBan);
 
-            // Thêm nhân viên mới
-            String insertSql = "INSERT INTO NHANVIEN (hoTen, ngaySinh, gioiTinh, soDienThoai, diaChi, chucVu, maQuanLy, luongCoBan) VALUES(?, ?, ?, ?, ?, ?, ?, ?)";
-            try (PreparedStatement insertStmt = conn.prepareStatement(insertSql)) {
-                insertStmt.setString(1, hoTen);
-                insertStmt.setString(2, strNgaySinh);
-                insertStmt.setString(3, gioiTinh);
-                insertStmt.setString(4, soDienThoai);
-                insertStmt.setString(5, diaChi);
-                insertStmt.setString(6, chucVu);
-                if (maQuanLy == null) {
-                    insertStmt.setNull(7, java.sql.Types.INTEGER);
-                } else {
-                    insertStmt.setInt(7, maQuanLy);
-                }
-                insertStmt.setDouble(8, luongCoBan);
+            cs.execute();
+            JOptionPane.showMessageDialog(this, "Thêm nhân viên thành công!");
+            layDuLieu();
 
-                int rowsInserted = insertStmt.executeUpdate();
-                if (rowsInserted > 0) {
-                    conn.commit(); // Xác nhận transaction
-                    JOptionPane.showMessageDialog(this, "Thêm nhân viên thành công!");
-                    layDuLieu(); // Tải lại dữ liệu để cập nhật bảng
-                } else {
-                    conn.rollback(); // Hủy transaction nếu không có dòng nào được thêm
-                    JOptionPane.showMessageDialog(this, "Thêm nhân viên thất bại.", "Lỗi CSDL", JOptionPane.ERROR_MESSAGE);
-                }
-            }
         } catch (SQLException ex) {
-            if (conn != null) {
-                try {
-                    conn.rollback();
-                } catch (SQLException e) {
-                    Logger.getLogger(tabQuanLyNhanVien.class.getName()).log(Level.SEVERE, "Lỗi khi rollback", e);
-                }
-            }
-            JOptionPane.showMessageDialog(this, "Lỗi SQL: " + ex.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE);
-            Logger.getLogger(tabQuanLyNhanVien.class.getName()).log(Level.SEVERE, null, ex);
-        } finally {
-            if (conn != null) {
-                try {
-                    conn.setAutoCommit(true);
-                    conn.close();
-                } catch (SQLException e) {
-                    Logger.getLogger(tabQuanLyNhanVien.class.getName()).log(Level.SEVERE, "Lỗi khi đóng kết nối", e);
-                }
-            }
+            JOptionPane.showMessageDialog(this, "Lỗi khi thêm nhân viên: " + ex.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE);
         }
+        
+        // 4. Thực thi thêm vào cơ sở dữ liệu
+//        Connection conn = null;
+//        try {
+//            conn = ConnectSQL.getConnection();
+//            conn.setAutoCommit(false);
+//
+//            String checkSdtSql = "SELECT COUNT(*) FROM NHANVIEN WHERE soDienThoai = ?";
+//            try (PreparedStatement checkStmt = conn.prepareStatement(checkSdtSql)) {
+//                checkStmt.setString(1, soDienThoai);
+//                ResultSet rs = checkStmt.executeQuery();
+//                if (rs.next() && rs.getInt(1) > 0) {
+//                    JOptionPane.showMessageDialog(this, "Số điện thoại đã tồn tại trong hệ thống.", "Lỗi trùng lặp", JOptionPane.ERROR_MESSAGE);
+//                    conn.rollback(); // Hủy transaction
+//                    return;
+//                }
+//            }
+//
+//            // Thêm nhân viên mới
+//            String insertSql = "INSERT INTO NHANVIEN (hoTen, ngaySinh, gioiTinh, soDienThoai, diaChi, chucVu, maQuanLy, luongCoBan) VALUES(?, ?, ?, ?, ?, ?, ?, ?)";
+//            try (PreparedStatement insertStmt = conn.prepareStatement(insertSql)) {
+//                insertStmt.setString(1, hoTen);
+//                insertStmt.setString(2, strNgaySinh);
+//                insertStmt.setString(3, gioiTinh);
+//                insertStmt.setString(4, soDienThoai);
+//                insertStmt.setString(5, diaChi);
+//                insertStmt.setString(6, chucVu);
+//                if (maQuanLy == null) {
+//                    insertStmt.setNull(7, java.sql.Types.INTEGER);
+//                } else {
+//                    insertStmt.setInt(7, maQuanLy);
+//                }
+//                insertStmt.setDouble(8, luongCoBan);
+//
+//                int rowsInserted = insertStmt.executeUpdate();
+//                if (rowsInserted > 0) {
+//                    conn.commit(); // Xác nhận transaction
+//                    JOptionPane.showMessageDialog(this, "Thêm nhân viên thành công!");
+//                    layDuLieu(); // Tải lại dữ liệu để cập nhật bảng
+//                } else {
+//                    conn.rollback(); // Hủy transaction nếu không có dòng nào được thêm
+//                    JOptionPane.showMessageDialog(this, "Thêm nhân viên thất bại.", "Lỗi CSDL", JOptionPane.ERROR_MESSAGE);
+//                }
+//            }
+//        } catch (SQLException ex) {
+//            if (conn != null) {
+//                try {
+//                    conn.rollback();
+//                } catch (SQLException e) {
+//                    Logger.getLogger(tabQuanLyNhanVien.class.getName()).log(Level.SEVERE, "Lỗi khi rollback", e);
+//                }
+//            }
+//            JOptionPane.showMessageDialog(this, "Lỗi SQL: " + ex.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE);
+//            Logger.getLogger(tabQuanLyNhanVien.class.getName()).log(Level.SEVERE, null, ex);
+//        } finally {
+//            if (conn != null) {
+//                try {
+//                    conn.setAutoCommit(true);
+//                    conn.close();
+//                } catch (SQLException e) {
+//                    Logger.getLogger(tabQuanLyNhanVien.class.getName()).log(Level.SEVERE, "Lỗi khi đóng kết nối", e);
+//                }
+//            }
+//        }
 
     }//GEN-LAST:event_btnThemNhanVienActionPerformed
 
@@ -563,98 +589,110 @@ public class tabQuanLyNhanVien extends javax.swing.JPanel {
         }
 
         int maNV = Integer.parseInt(model.getValueAt(selectedRow, 0).toString());
+        String sql = "{call sp_XoaNhanVien(?)}"; 
+        try (Connection conn = CRUD.ConnectSQL.getConnection(); 
+             CallableStatement cs = conn.prepareCall(sql)) {
 
-        Connection conn = null;
-        try {
-            conn = ConnectSQL.getConnection();
-            conn.setAutoCommit(false);
+            cs.setInt(1, maNV);
 
-            String checkHoaDonSql = "SELECT COUNT(*) FROM HOADON WHERE maNhanVienLap = ?";
-            try (PreparedStatement ps = conn.prepareStatement(checkHoaDonSql)) {
-                ps.setInt(1, maNV);
-                ResultSet rs = ps.executeQuery();
-                if (rs.next() && rs.getInt(1) > 0) {
-                    JOptionPane.showMessageDialog(this, "Không thể xóa nhân viên này vì đã có lịch sử lập hóa đơn.", "Xóa bị chặn", JOptionPane.ERROR_MESSAGE);
-                    conn.rollback();
-                    return;
-                }
-            }
-
-            String checkPhieuNhapSql = "SELECT COUNT(*) FROM PHIEUNHAPHANG WHERE maNhanVienNhap = ?";
-            try (PreparedStatement ps = conn.prepareStatement(checkPhieuNhapSql)) {
-                ps.setInt(1, maNV);
-                ResultSet rs = ps.executeQuery();
-                if (rs.next() && rs.getInt(1) > 0) {
-                    JOptionPane.showMessageDialog(this, "Không thể xóa nhân viên này vì đã có lịch sử nhập hàng.", "Xóa bị chặn", JOptionPane.ERROR_MESSAGE);
-                    conn.rollback();
-                    return;
-                }
-            }
-
-            // 2. Cập nhật nhân viên cấp dưới (nếu nhân viên bị xóa là quản lý)
-            // Đặt maQuanLy của các nhân viên cấp dưới thành NULL
-            String updateSubordinatesSql = "UPDATE NHANVIEN SET maQuanLy = NULL WHERE maQuanLy = ?";
-            try (PreparedStatement ps = conn.prepareStatement(updateSubordinatesSql)) {
-                ps.setInt(1, maNV);
-                ps.executeUpdate();
-            }
-
-            // 3. Xóa các bản ghi phụ thuộc
-            // Xóa tài khoản
-            String deleteTaiKhoanSql = "DELETE FROM TAIKHOAN WHERE maNhanVien = ?";
-            try (PreparedStatement ps = conn.prepareStatement(deleteTaiKhoanSql)) {
-                ps.setInt(1, maNV);
-                ps.executeUpdate();
-            }
-
-            // Xóa các bảng phụ khác nếu có (ví dụ: NHANVIEN_CALAMVIEC, PHIEUTHONGKE)
-            String deleteCaLamViecSql = "DELETE FROM NHANVIEN_CALAMVIEC WHERE MaNhanVien = ?";
-            try (PreparedStatement ps = conn.prepareStatement(deleteCaLamViecSql)) {
-                ps.setInt(1, maNV);
-                ps.executeUpdate();
-            }
-
-            String deletePhieuThongKeSql = "DELETE FROM PHIEUTHONGKE WHERE MaNhanVien = ?";
-            try (PreparedStatement ps = conn.prepareStatement(deletePhieuThongKeSql)) {
-                ps.setInt(1, maNV);
-                ps.executeUpdate();
-            }
-
-            // 4. Cuối cùng, xóa nhân viên khỏi bảng NHANVIEN
-            String deleteNhanVienSql = "DELETE FROM NHANVIEN WHERE MaNhanVien = ?";
-            try (PreparedStatement ps = conn.prepareStatement(deleteNhanVienSql)) {
-                ps.setInt(1, maNV);
-                int rowsDeleted = ps.executeUpdate();
-                if (rowsDeleted > 0) {
-                    conn.commit(); // Xác nhận toàn bộ transaction
-                    JOptionPane.showMessageDialog(this, "Xóa nhân viên thành công!");
-                    layDuLieu(); // Tải lại dữ liệu
-                } else {
-                    conn.rollback(); // Hủy bỏ nếu có lỗi
-                    JOptionPane.showMessageDialog(this, "Không tìm thấy nhân viên để xóa.", "Lỗi", JOptionPane.ERROR_MESSAGE);
-                }
-            }
+            cs.execute();
+            JOptionPane.showMessageDialog(this, "Xóa nhân viên thành công!");
+            layDuLieu();
 
         } catch (SQLException ex) {
-            if (conn != null) {
-                try {
-                    conn.rollback();
-                } catch (SQLException e) {
-                    Logger.getLogger(tabQuanLyNhanVien.class.getName()).log(Level.SEVERE, "Lỗi khi rollback", e);
-                }
-            }
-            JOptionPane.showMessageDialog(this, "Lỗi SQL khi xóa: " + ex.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE);
-            Logger.getLogger(tabQuanLyNhanVien.class.getName()).log(Level.SEVERE, null, ex);
-        } finally {
-            if (conn != null) {
-                try {
-                    conn.setAutoCommit(true);
-                    conn.close();
-                } catch (SQLException e) {
-                    Logger.getLogger(tabQuanLyNhanVien.class.getName()).log(Level.SEVERE, "Lỗi khi đóng kết nối", e);
-                }
-            }
+            JOptionPane.showMessageDialog(this, "Lỗi khi xóa nhân viên: " + ex.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE);
         }
+//        Connection conn = null;
+//        try {
+//            conn = ConnectSQL.getConnection();
+//            conn.setAutoCommit(false);
+//
+//            String checkHoaDonSql = "SELECT COUNT(*) FROM HOADON WHERE maNhanVienLap = ?";
+//            try (PreparedStatement ps = conn.prepareStatement(checkHoaDonSql)) {
+//                ps.setInt(1, maNV);
+//                ResultSet rs = ps.executeQuery();
+//                if (rs.next() && rs.getInt(1) > 0) {
+//                    JOptionPane.showMessageDialog(this, "Không thể xóa nhân viên này vì đã có lịch sử lập hóa đơn.", "Xóa bị chặn", JOptionPane.ERROR_MESSAGE);
+//                    conn.rollback();
+//                    return;
+//                }
+//            }
+//
+//            String checkPhieuNhapSql = "SELECT COUNT(*) FROM PHIEUNHAPHANG WHERE maNhanVienNhap = ?";
+//            try (PreparedStatement ps = conn.prepareStatement(checkPhieuNhapSql)) {
+//                ps.setInt(1, maNV);
+//                ResultSet rs = ps.executeQuery();
+//                if (rs.next() && rs.getInt(1) > 0) {
+//                    JOptionPane.showMessageDialog(this, "Không thể xóa nhân viên này vì đã có lịch sử nhập hàng.", "Xóa bị chặn", JOptionPane.ERROR_MESSAGE);
+//                    conn.rollback();
+//                    return;
+//                }
+//            }
+//
+//            // 2. Cập nhật nhân viên cấp dưới (nếu nhân viên bị xóa là quản lý)
+//            // Đặt maQuanLy của các nhân viên cấp dưới thành NULL
+//            String updateSubordinatesSql = "UPDATE NHANVIEN SET maQuanLy = NULL WHERE maQuanLy = ?";
+//            try (PreparedStatement ps = conn.prepareStatement(updateSubordinatesSql)) {
+//                ps.setInt(1, maNV);
+//                ps.executeUpdate();
+//            }
+//
+//            // 3. Xóa các bản ghi phụ thuộc
+//            // Xóa tài khoản
+//            String deleteTaiKhoanSql = "DELETE FROM TAIKHOAN WHERE maNhanVien = ?";
+//            try (PreparedStatement ps = conn.prepareStatement(deleteTaiKhoanSql)) {
+//                ps.setInt(1, maNV);
+//                ps.executeUpdate();
+//            }
+//
+//            // Xóa các bảng phụ khác nếu có (ví dụ: NHANVIEN_CALAMVIEC, PHIEUTHONGKE)
+//            String deleteCaLamViecSql = "DELETE FROM NHANVIEN_CALAMVIEC WHERE MaNhanVien = ?";
+//            try (PreparedStatement ps = conn.prepareStatement(deleteCaLamViecSql)) {
+//                ps.setInt(1, maNV);
+//                ps.executeUpdate();
+//            }
+//
+//            String deletePhieuThongKeSql = "DELETE FROM PHIEUTHONGKE WHERE MaNhanVien = ?";
+//            try (PreparedStatement ps = conn.prepareStatement(deletePhieuThongKeSql)) {
+//                ps.setInt(1, maNV);
+//                ps.executeUpdate();
+//            }
+//
+//            // 4. Cuối cùng, xóa nhân viên khỏi bảng NHANVIEN
+//            String deleteNhanVienSql = "DELETE FROM NHANVIEN WHERE MaNhanVien = ?";
+//            try (PreparedStatement ps = conn.prepareStatement(deleteNhanVienSql)) {
+//                ps.setInt(1, maNV);
+//                int rowsDeleted = ps.executeUpdate();
+//                if (rowsDeleted > 0) {
+//                    conn.commit(); // Xác nhận toàn bộ transaction
+//                    JOptionPane.showMessageDialog(this, "Xóa nhân viên thành công!");
+//                    layDuLieu(); // Tải lại dữ liệu
+//                } else {
+//                    conn.rollback(); // Hủy bỏ nếu có lỗi
+//                    JOptionPane.showMessageDialog(this, "Không tìm thấy nhân viên để xóa.", "Lỗi", JOptionPane.ERROR_MESSAGE);
+//                }
+//            }
+//
+//        } catch (SQLException ex) {
+//            if (conn != null) {
+//                try {
+//                    conn.rollback();
+//                } catch (SQLException e) {
+//                    Logger.getLogger(tabQuanLyNhanVien.class.getName()).log(Level.SEVERE, "Lỗi khi rollback", e);
+//                }
+//            }
+//            JOptionPane.showMessageDialog(this, "Lỗi SQL khi xóa: " + ex.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE);
+//            Logger.getLogger(tabQuanLyNhanVien.class.getName()).log(Level.SEVERE, null, ex);
+//        } finally {
+//            if (conn != null) {
+//                try {
+//                    conn.setAutoCommit(true);
+//                    conn.close();
+//                } catch (SQLException e) {
+//                    Logger.getLogger(tabQuanLyNhanVien.class.getName()).log(Level.SEVERE, "Lỗi khi đóng kết nối", e);
+//                }
+//            }
+//        }
     }//GEN-LAST:event_btnXoaNhanVienActionPerformed
 
     private void btnSuaNhanVienActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSuaNhanVienActionPerformed
@@ -672,7 +710,6 @@ public class tabQuanLyNhanVien extends javax.swing.JPanel {
             return;
         }
 
-        // 2. Lấy thông tin từ form và dòng đã chọn
         int maNhanVien = Integer.parseInt(model.getValueAt(selectedRow, 0).toString());
         String hoTen = txtHoTen.getText().trim();
         java.util.Date ngaySinhUtil = txtNgaySinh.getDate();
@@ -683,7 +720,7 @@ public class tabQuanLyNhanVien extends javax.swing.JPanel {
         String chucVu = cbChucVu.getSelectedItem().toString();
         String nguoiQuanLySelected = cbNguoiQuanLy.getSelectedItem() != null ? cbNguoiQuanLy.getSelectedItem().toString() : "";
 
-        // 3. Kiểm tra logic nghiệp vụ
+        
         if (soDienThoai.length() != 10 || !soDienThoai.matches("\\d{10}")) {
             JOptionPane.showMessageDialog(this, "Số điện thoại phải có 10 chữ số.", "Lỗi định dạng", JOptionPane.ERROR_MESSAGE);
             return;
@@ -711,64 +748,89 @@ public class tabQuanLyNhanVien extends javax.swing.JPanel {
             }
         }
 
-        // Không thể tự quản lý chính mình
         if(maQuanLy != null && maQuanLy == maNhanVien) {
             JOptionPane.showMessageDialog(this, "Nhân viên không thể tự quản lý chính mình.", "Lỗi logic", JOptionPane.ERROR_MESSAGE);
             return;
         }
 
-        // 4. Thực thi cập nhật vào CSDL
-        Connection conn = null;
-        try {
-            conn = ConnectSQL.getConnection();
-            conn.setAutoCommit(false); // Bắt đầu transaction
+            
+        String sql = "{call sp_SuaNhanVien(?, ?, ?, ?, ?, ?, ?, ?, ?)}"; 
+        try (Connection conn = CRUD.ConnectSQL.getConnection(); 
+             CallableStatement cs = conn.prepareCall(sql)) {
 
-            // Kiểm tra SĐT trùng lặp (loại trừ chính nhân viên đang sửa)
-            String checkSdtSql = "SELECT COUNT(*) FROM NHANVIEN WHERE soDienThoai = ? AND MaNhanVien != ?";
-            try (PreparedStatement checkStmt = conn.prepareStatement(checkSdtSql)) {
-                checkStmt.setString(1, soDienThoai);
-                checkStmt.setInt(2, maNhanVien);
-                ResultSet rs = checkStmt.executeQuery();
-                if (rs.next() && rs.getInt(1) > 0) {
-                    JOptionPane.showMessageDialog(this, "Số điện thoại đã tồn tại ở một nhân viên khác.", "Lỗi trùng lặp", JOptionPane.ERROR_MESSAGE);
-                    conn.rollback();
-                    return;
-                }
+            cs.setString(1, hoTen);
+            cs.setString(2, strNgaySinh);
+            cs.setString(3, gioiTinh);
+            cs.setString(4, soDienThoai);
+            cs.setString(5, diaChi);
+            cs.setString(6, chucVu);
+            if (maQuanLy == null) {
+                cs.setNull(7, java.sql.Types.INTEGER);
+            } else {
+                cs.setInt(7, maQuanLy);
             }
+            cs.setDouble(8, luongCoBan);
+            cs.setInt(9, maNhanVien);
 
-            String updateSql = "UPDATE NHANVIEN SET hoTen = ?, ngaySinh = ?, gioiTinh = ?, soDienThoai = ?, diaChi = ?, chucVu = ?, maQuanLy = ?, luongCoBan = ? WHERE MaNhanVien = ?";
-            try (PreparedStatement updateStmt = conn.prepareStatement(updateSql)) {
-                updateStmt.setString(1, hoTen);
-                updateStmt.setString(2, strNgaySinh);
-                updateStmt.setString(3, gioiTinh);
-                updateStmt.setString(4, soDienThoai);
-                updateStmt.setString(5, diaChi);
-                updateStmt.setString(6, chucVu);
-                if (maQuanLy == null) {
-                    updateStmt.setNull(7, java.sql.Types.INTEGER);
-                } else {
-                    updateStmt.setInt(7, maQuanLy);
-                }
-                updateStmt.setDouble(8, luongCoBan);
-                updateStmt.setInt(9, maNhanVien);
+            cs.execute();
+            JOptionPane.showMessageDialog(this, "Cập nhật thông tin nhân viên thành công!");
+            layDuLieu();
 
-                int rowsUpdated = updateStmt.executeUpdate();
-                if (rowsUpdated > 0) {
-                    conn.commit();
-                    JOptionPane.showMessageDialog(this, "Cập nhật thông tin nhân viên thành công!");
-                    layDuLieu(); // Tải lại dữ liệu để cập nhật bảng
-                } else {
-                    conn.rollback();
-                    JOptionPane.showMessageDialog(this, "Cập nhật thất bại. Không tìm thấy nhân viên.", "Lỗi", JOptionPane.ERROR_MESSAGE);
-                }
-            }
         } catch (SQLException ex) {
-            if (conn != null) try { conn.rollback(); } catch (SQLException e) {}
-            JOptionPane.showMessageDialog(this, "Lỗi SQL khi cập nhật: " + ex.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE);
-            Logger.getLogger(tabQuanLyNhanVien.class.getName()).log(Level.SEVERE, null, ex);
-        } finally {
-            if (conn != null) try { conn.close(); } catch (SQLException e) {}
+            JOptionPane.showMessageDialog(this, "Lỗi khi cập nhật: " + ex.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE);
         }
+//        // 4. Thực thi cập nhật vào CSDL
+//        Connection conn = null;
+//        try {
+//            conn = ConnectSQL.getConnection();
+//            conn.setAutoCommit(false); // Bắt đầu transaction
+//
+//            // Kiểm tra SĐT trùng lặp (loại trừ chính nhân viên đang sửa)
+//            String checkSdtSql = "SELECT COUNT(*) FROM NHANVIEN WHERE soDienThoai = ? AND MaNhanVien != ?";
+//            try (PreparedStatement checkStmt = conn.prepareStatement(checkSdtSql)) {
+//                checkStmt.setString(1, soDienThoai);
+//                checkStmt.setInt(2, maNhanVien);
+//                ResultSet rs = checkStmt.executeQuery();
+//                if (rs.next() && rs.getInt(1) > 0) {
+//                    JOptionPane.showMessageDialog(this, "Số điện thoại đã tồn tại ở một nhân viên khác.", "Lỗi trùng lặp", JOptionPane.ERROR_MESSAGE);
+//                    conn.rollback();
+//                    return;
+//                }
+//            }
+//
+//            String updateSql = "UPDATE NHANVIEN SET hoTen = ?, ngaySinh = ?, gioiTinh = ?, soDienThoai = ?, diaChi = ?, chucVu = ?, maQuanLy = ?, luongCoBan = ? WHERE MaNhanVien = ?";
+//            try (PreparedStatement updateStmt = conn.prepareStatement(updateSql)) {
+//                updateStmt.setString(1, hoTen);
+//                updateStmt.setString(2, strNgaySinh);
+//                updateStmt.setString(3, gioiTinh);
+//                updateStmt.setString(4, soDienThoai);
+//                updateStmt.setString(5, diaChi);
+//                updateStmt.setString(6, chucVu);
+//                if (maQuanLy == null) {
+//                    updateStmt.setNull(7, java.sql.Types.INTEGER);
+//                } else {
+//                    updateStmt.setInt(7, maQuanLy);
+//                }
+//                updateStmt.setDouble(8, luongCoBan);
+//                updateStmt.setInt(9, maNhanVien);
+//
+//                int rowsUpdated = updateStmt.executeUpdate();
+//                if (rowsUpdated > 0) {
+//                    conn.commit();
+//                    JOptionPane.showMessageDialog(this, "Cập nhật thông tin nhân viên thành công!");
+//                    layDuLieu(); // Tải lại dữ liệu để cập nhật bảng
+//                } else {
+//                    conn.rollback();
+//                    JOptionPane.showMessageDialog(this, "Cập nhật thất bại. Không tìm thấy nhân viên.", "Lỗi", JOptionPane.ERROR_MESSAGE);
+//                }
+//            }
+//        } catch (SQLException ex) {
+//            if (conn != null) try { conn.rollback(); } catch (SQLException e) {}
+//            JOptionPane.showMessageDialog(this, "Lỗi SQL khi cập nhật: " + ex.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE);
+//            Logger.getLogger(tabQuanLyNhanVien.class.getName()).log(Level.SEVERE, null, ex);
+//        } finally {
+//            if (conn != null) try { conn.close(); } catch (SQLException e) {}
+//        }
     }//GEN-LAST:event_btnSuaNhanVienActionPerformed
 
     private void btnLamMoiActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLamMoiActionPerformed

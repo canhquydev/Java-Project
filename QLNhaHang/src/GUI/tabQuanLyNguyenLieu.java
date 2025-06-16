@@ -11,13 +11,12 @@ import com.formdev.flatlaf.extras.FlatSVGIcon;
 import java.awt.Color;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.CallableStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Date;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
 
@@ -415,35 +414,48 @@ public class tabQuanLyNguyenLieu extends javax.swing.JPanel {
 
         int maNL = (int) tbHienThiNguyenLieu.getValueAt(selectedRow, 0);
 
-        try (Connection conn = ConnectSQL.getConnection()) {
-            // Kiểm tra khóa ngoại trong các bảng liên quan
-            String[] tablesToCheck = {"CHITIETNHAPHANG", "NGUYENLIEU_MONAN"};
-            for (String table : tablesToCheck) {
-                String checkSql = "SELECT COUNT(*) FROM " + table + " WHERE MaNguyenLieu = ?";
-                try (PreparedStatement psCheck = conn.prepareStatement(checkSql)) {
-                    psCheck.setInt(1, maNL);
-                    ResultSet rs = psCheck.executeQuery();
-                    if (rs.next() && rs.getInt(1) > 0) {
-                        JOptionPane.showMessageDialog(this, "Không thể xóa! Nguyên liệu này đang được sử dụng trong bảng " + table + ".", "Xóa bị chặn", JOptionPane.ERROR_MESSAGE);
-                        return; // Dừng việc xóa
-                    }
-                }
-            }
+        String sql = "{call sp_XoaNguyenLieu(?)}"; 
+        try (Connection conn = CRUD.ConnectSQL.getConnection(); 
+             CallableStatement cs = conn.prepareCall(sql)) {
 
-            // Nếu không có ràng buộc, tiến hành xóa
-            String deleteSql = "DELETE FROM NGUYENLIEU WHERE MaNguyenLieu = ?";
-            try (PreparedStatement psDelete = conn.prepareStatement(deleteSql)) {
-                psDelete.setInt(1, maNL);
-                int result = psDelete.executeUpdate();
-                if (result > 0) {
-                    JOptionPane.showMessageDialog(this, "Xóa nguyên liệu thành công!");
-                    layDuLieu();
-                }
-            }
+            cs.setInt(1, maNL);
+
+            cs.execute();
+            JOptionPane.showMessageDialog(this, "Xóa nguyên liệu thành công!");
+            layDuLieu();
 
         } catch (SQLException ex) {
-            JOptionPane.showMessageDialog(this, "Lỗi khi xóa nguyên liệu: " + ex.getMessage(), "Lỗi SQL", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Lỗi khi xóa nguyên liệu: " + ex.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE);
         }
+//        try (Connection conn = ConnectSQL.getConnection()) {
+//            // Kiểm tra khóa ngoại trong các bảng liên quan
+//            String[] tablesToCheck = {"CHITIETNHAPHANG", "NGUYENLIEU_MONAN"};
+//            for (String table : tablesToCheck) {
+//                String checkSql = "SELECT COUNT(*) FROM " + table + " WHERE MaNguyenLieu = ?";
+//                try (PreparedStatement psCheck = conn.prepareStatement(checkSql)) {
+//                    psCheck.setInt(1, maNL);
+//                    ResultSet rs = psCheck.executeQuery();
+//                    if (rs.next() && rs.getInt(1) > 0) {
+//                        JOptionPane.showMessageDialog(this, "Không thể xóa! Nguyên liệu này đang được sử dụng trong bảng " + table + ".", "Xóa bị chặn", JOptionPane.ERROR_MESSAGE);
+//                        return; // Dừng việc xóa
+//                    }
+//                }
+//            }
+//
+//            // Nếu không có ràng buộc, tiến hành xóa
+//            String deleteSql = "DELETE FROM NGUYENLIEU WHERE MaNguyenLieu = ?";
+//            try (PreparedStatement psDelete = conn.prepareStatement(deleteSql)) {
+//                psDelete.setInt(1, maNL);
+//                int result = psDelete.executeUpdate();
+//                if (result > 0) {
+//                    JOptionPane.showMessageDialog(this, "Xóa nguyên liệu thành công!");
+//                    layDuLieu();
+//                }
+//            }
+//
+//        } catch (SQLException ex) {
+//            JOptionPane.showMessageDialog(this, "Lỗi khi xóa nguyên liệu: " + ex.getMessage(), "Lỗi SQL", JOptionPane.ERROR_MESSAGE);
+//        }
     }//GEN-LAST:event_btnXoaNLActionPerformed
 
     private void btnSuaNLActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSuaNLActionPerformed
@@ -465,26 +477,47 @@ public class tabQuanLyNguyenLieu extends javax.swing.JPanel {
         String donViTinh = cbDonViTinh.getSelectedItem().toString();
         int soLuongTon = Integer.parseInt(txtSoLuongTon.getText().trim());
 
-        String sql = "UPDATE NGUYENLIEU SET TenNguyenLieu = ?, Loai = ?, NgaySanXuat = ?, HanSuDung = ?, GiaBan = ?, DonViTinh = ?, SoLuongTon = ? WHERE MaNguyenLieu = ?";
+        String sql = "{call sp_SuaNguyenLieu(?, ?, ?, ?, ?, ?, ?, ?)}"; 
+        try (Connection conn = CRUD.ConnectSQL.getConnection(); 
+             CallableStatement cs = conn.prepareCall(sql)) {
 
-        try (Connection conn = ConnectSQL.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setString(1, tenNL);
-            ps.setString(2, loai);
-            ps.setDate(3, ngaySX);
-            ps.setDate(4, hsd);
-            ps.setLong(5, giaBan);
-            ps.setString(6, donViTinh);
-            ps.setInt(7, soLuongTon);
-            ps.setInt(8, maNL);
+            cs.setString(1, tenNL);
+            cs.setString(2, loai);
+            cs.setDate(3, ngaySX);
+            cs.setDate(4, hsd);
+            cs.setLong(5, giaBan);
+            cs.setString(6, donViTinh);
+            cs.setInt(7, soLuongTon);
+            cs.setInt(8, maNL);
 
-            int result = ps.executeUpdate();
-            if (result > 0) {
-                JOptionPane.showMessageDialog(this, "Cập nhật nguyên liệu thành công!");
-                layDuLieu();
-            }
+            cs.execute();
+            JOptionPane.showMessageDialog(this, "Cập nhật nguyên liệu thành công!");
+            layDuLieu();
+
         } catch (SQLException ex) {
-            JOptionPane.showMessageDialog(this, "Lỗi khi cập nhật nguyên liệu: " + ex.getMessage(), "Lỗi SQL", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Lỗi khi cập nhật nguyên liệu: " + ex.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE);
         }
+        
+//        String sql = "UPDATE NGUYENLIEU SET TenNguyenLieu = ?, Loai = ?, NgaySanXuat = ?, HanSuDung = ?, GiaBan = ?, DonViTinh = ?, SoLuongTon = ? WHERE MaNguyenLieu = ?";
+//
+//        try (Connection conn = ConnectSQL.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+//            ps.setString(1, tenNL);
+//            ps.setString(2, loai);
+//            ps.setDate(3, ngaySX);
+//            ps.setDate(4, hsd);
+//            ps.setLong(5, giaBan);
+//            ps.setString(6, donViTinh);
+//            ps.setInt(7, soLuongTon);
+//            ps.setInt(8, maNL);
+//
+//            int result = ps.executeUpdate();
+//            if (result > 0) {
+//                JOptionPane.showMessageDialog(this, "Cập nhật nguyên liệu thành công!");
+//                layDuLieu();
+//            }
+//        } catch (SQLException ex) {
+//            JOptionPane.showMessageDialog(this, "Lỗi khi cập nhật nguyên liệu: " + ex.getMessage(), "Lỗi SQL", JOptionPane.ERROR_MESSAGE);
+//        }
     }//GEN-LAST:event_btnSuaNLActionPerformed
 
     private void btnLamMoiActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLamMoiActionPerformed
@@ -505,7 +538,6 @@ public class tabQuanLyNguyenLieu extends javax.swing.JPanel {
             return;
         }
 
-        // Lấy dữ liệu từ form
         String tenNL = txtTenNguyenLieu.getText().trim();
         String loai = cbLoai.getSelectedItem().toString();
         Date ngaySX = new Date(txtNgaySX.getDate().getTime());
@@ -514,25 +546,45 @@ public class tabQuanLyNguyenLieu extends javax.swing.JPanel {
         String donViTinh = cbDonViTinh.getSelectedItem().toString();
         int soLuongTon = Integer.parseInt(txtSoLuongTon.getText().trim());
 
-        String sql = "INSERT INTO NGUYENLIEU (TenNguyenLieu, Loai, NgaySanXuat, HanSuDung, GiaBan, DonViTinh, SoLuongTon) VALUES (?, ?, ?, ?, ?, ?, ?)";
+        String sql = "{call sp_ThemNguyenLieu(?, ?, ?, ?, ?, ?, ?)}"; 
+        try (Connection conn = CRUD.ConnectSQL.getConnection(); 
+             CallableStatement cs = conn.prepareCall(sql)) {
 
-        try (Connection conn = ConnectSQL.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setString(1, tenNL);
-            ps.setString(2, loai);
-            ps.setDate(3, ngaySX);
-            ps.setDate(4, hsd);
-            ps.setLong(5, giaBan);
-            ps.setString(6, donViTinh);
-            ps.setInt(7, soLuongTon);
+            cs.setString(1, tenNL);
+            cs.setString(2, loai);
+            cs.setDate(3, ngaySX);
+            cs.setDate(4, hsd);
+            cs.setLong(5, giaBan);
+            cs.setString(6, donViTinh);
+            cs.setInt(7, soLuongTon);
 
-            int result = ps.executeUpdate();
-            if (result > 0) {
-                JOptionPane.showMessageDialog(this, "Thêm nguyên liệu thành công!");
-                layDuLieu(); // Tải lại bảng
-            }
+            cs.execute();
+            JOptionPane.showMessageDialog(this, "Thêm nguyên liệu thành công!");
+            layDuLieu();
+
         } catch (SQLException ex) {
-            JOptionPane.showMessageDialog(this, "Lỗi khi thêm nguyên liệu: " + ex.getMessage(), "Lỗi SQL", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Lỗi khi thêm nguyên liệu: " + ex.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE);
         }
+        
+//        String sql = "INSERT INTO NGUYENLIEU (TenNguyenLieu, Loai, NgaySanXuat, HanSuDung, GiaBan, DonViTinh, SoLuongTon) VALUES (?, ?, ?, ?, ?, ?, ?)";
+//
+//        try (Connection conn = ConnectSQL.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+//            ps.setString(1, tenNL);
+//            ps.setString(2, loai);
+//            ps.setDate(3, ngaySX);
+//            ps.setDate(4, hsd);
+//            ps.setLong(5, giaBan);
+//            ps.setString(6, donViTinh);
+//            ps.setInt(7, soLuongTon);
+//
+//            int result = ps.executeUpdate();
+//            if (result > 0) {
+//                JOptionPane.showMessageDialog(this, "Thêm nguyên liệu thành công!");
+//                layDuLieu(); // Tải lại bảng
+//            }
+//        } catch (SQLException ex) {
+//            JOptionPane.showMessageDialog(this, "Lỗi khi thêm nguyên liệu: " + ex.getMessage(), "Lỗi SQL", JOptionPane.ERROR_MESSAGE);
+//        }
     }//GEN-LAST:event_btnThemNLActionPerformed
 
 

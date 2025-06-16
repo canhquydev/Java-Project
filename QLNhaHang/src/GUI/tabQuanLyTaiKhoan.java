@@ -14,10 +14,10 @@ import java.util.Set;
 import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
 import java.sql.PreparedStatement;
+import java.sql.CallableStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Connection;
-import java.sql.Date;
 import java.time.LocalDate;
 
 
@@ -368,7 +368,6 @@ public class tabQuanLyTaiKhoan extends javax.swing.JPanel {
         String tenDangNhap = txtUser.getText().trim();
         String matKhau = new String(txtPass.getPassword());
         LocalDate date = LocalDate.now();
-        String ngayTao = Date.valueOf(date).toString();
         String trangThai = cbTrangThai.getSelectedItem().toString();
         String loaiTaiKhoan = cbLoaiTaiKhoan.getSelectedItem().toString();
         String tenNhanVien = cbTenNhanVien.getSelectedItem().toString();
@@ -386,65 +385,82 @@ public class tabQuanLyTaiKhoan extends javax.swing.JPanel {
             return;
         }
 
-        Connection conn = null;
-        try {
-            conn = CRUD.ConnectSQL.getConnection();
-            conn.setAutoCommit(false);
+        String sql = "{call sp_ThemTaiKhoan(?, ?, ?, ?, ?)}"; 
+        try (Connection conn = CRUD.ConnectSQL.getConnection(); 
+             CallableStatement cs = conn.prepareCall(sql)) {
 
-            // Kiểm tra tên đăng nhập đã tồn tại chưa
-            String checkUserSql = "SELECT COUNT(*) FROM TAIKHOAN WHERE tenDangNhap = ?";
-            try (PreparedStatement ps = conn.prepareStatement(checkUserSql)) {
-                ps.setString(1, tenDangNhap);
-                ResultSet rs = ps.executeQuery();
-                if (rs.next() && rs.getInt(1) > 0) {
-                    JOptionPane.showMessageDialog(this, "Tên đăng nhập đã tồn tại!", "Lỗi", JOptionPane.ERROR_MESSAGE);
-                    conn.rollback();
-                    return;
-                }
-            }
+            cs.setString(1, tenDangNhap);
+            cs.setString(2, matKhau);
+            cs.setString(3, trangThai);
+            cs.setString(4, loaiTaiKhoan);
+            cs.setInt(5, maNhanVien);
 
-            // Kiểm tra nhân viên này đã có tài khoản chưa
-            String checkNvSql = "SELECT COUNT(*) FROM TAIKHOAN WHERE maNhanVien = ?";
-            try (PreparedStatement ps = conn.prepareStatement(checkNvSql)) {
-                ps.setInt(1, maNhanVien);
-                ResultSet rs = ps.executeQuery();
-                if (rs.next() && rs.getInt(1) > 0) {
-                    JOptionPane.showMessageDialog(this, "Nhân viên này đã có tài khoản!", "Lỗi", JOptionPane.ERROR_MESSAGE);
-                    conn.rollback();
-                    return;
-                }
-            }
+            cs.execute();
+            JOptionPane.showMessageDialog(this, "Thêm tài khoản thành công!");
+            layDuLieu();
 
-            // Thêm tài khoản mới
-            String insertSql = "INSERT INTO TAIKHOAN (tenDangNhap, matKhau, ngayTao, trangThai, loaiTaiKhoan, maNhanVien) VALUES (?, ?, ?, ?, ?, ?)";
-            try (PreparedStatement ps = conn.prepareStatement(insertSql)) {
-                ps.setString(1, tenDangNhap);
-                ps.setString(2, matKhau);
-                ps.setString(3, ngayTao);
-                ps.setString(4, trangThai);
-                ps.setString(5, loaiTaiKhoan);
-                ps.setInt(6, maNhanVien);
-
-                int result = ps.executeUpdate();
-                if (result > 0) {
-                    conn.commit();
-                    JOptionPane.showMessageDialog(this, "Thêm tài khoản thành công!");
-                    layDuLieu();
-                } else {
-                    conn.rollback();
-                    JOptionPane.showMessageDialog(this, "Thêm tài khoản thất bại!", "Lỗi", JOptionPane.ERROR_MESSAGE);
-                }
-            }
         } catch (SQLException ex) {
-            try {
-                if (conn != null) conn.rollback();
-            } catch (SQLException e) {}
-            JOptionPane.showMessageDialog(this, "Lỗi SQL: " + ex.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE);
-        } finally {
-            try {
-                if (conn != null) conn.close();
-            } catch (SQLException e) {}
+            JOptionPane.showMessageDialog(this, "Lỗi khi thêm tài khoản: " + ex.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE);
         }
+//        Connection conn = null;
+//        try {
+//            conn = CRUD.ConnectSQL.getConnection();
+//            conn.setAutoCommit(false);
+//
+//            // Kiểm tra tên đăng nhập đã tồn tại chưa
+//            String checkUserSql = "SELECT COUNT(*) FROM TAIKHOAN WHERE tenDangNhap = ?";
+//            try (PreparedStatement ps = conn.prepareStatement(checkUserSql)) {
+//                ps.setString(1, tenDangNhap);
+//                ResultSet rs = ps.executeQuery();
+//                if (rs.next() && rs.getInt(1) > 0) {
+//                    JOptionPane.showMessageDialog(this, "Tên đăng nhập đã tồn tại!", "Lỗi", JOptionPane.ERROR_MESSAGE);
+//                    conn.rollback();
+//                    return;
+//                }
+//            }
+//
+//            // Kiểm tra nhân viên này đã có tài khoản chưa
+//            String checkNvSql = "SELECT COUNT(*) FROM TAIKHOAN WHERE maNhanVien = ?";
+//            try (PreparedStatement ps = conn.prepareStatement(checkNvSql)) {
+//                ps.setInt(1, maNhanVien);
+//                ResultSet rs = ps.executeQuery();
+//                if (rs.next() && rs.getInt(1) > 0) {
+//                    JOptionPane.showMessageDialog(this, "Nhân viên này đã có tài khoản!", "Lỗi", JOptionPane.ERROR_MESSAGE);
+//                    conn.rollback();
+//                    return;
+//                }
+//            }
+//
+//            // Thêm tài khoản mới
+//            String insertSql = "INSERT INTO TAIKHOAN (tenDangNhap, matKhau, ngayTao, trangThai, loaiTaiKhoan, maNhanVien) VALUES (?, ?, ?, ?, ?, ?)";
+//            try (PreparedStatement ps = conn.prepareStatement(insertSql)) {
+//                ps.setString(1, tenDangNhap);
+//                ps.setString(2, matKhau);
+//                ps.setString(3, ngayTao);
+//                ps.setString(4, trangThai);
+//                ps.setString(5, loaiTaiKhoan);
+//                ps.setInt(6, maNhanVien);
+//
+//                int result = ps.executeUpdate();
+//                if (result > 0) {
+//                    conn.commit();
+//                    JOptionPane.showMessageDialog(this, "Thêm tài khoản thành công!");
+//                    layDuLieu();
+//                } else {
+//                    conn.rollback();
+//                    JOptionPane.showMessageDialog(this, "Thêm tài khoản thất bại!", "Lỗi", JOptionPane.ERROR_MESSAGE);
+//                }
+//            }
+//        } catch (SQLException ex) {
+//            try {
+//                if (conn != null) conn.rollback();
+//            } catch (SQLException e) {}
+//            JOptionPane.showMessageDialog(this, "Lỗi SQL: " + ex.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE);
+//        } finally {
+//            try {
+//                if (conn != null) conn.close();
+//            } catch (SQLException e) {}
+//        }
     }//GEN-LAST:event_btnThemTaiKhoanActionPerformed
 
     private void btnXoaTaiKhoanActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnXoaTaiKhoanActionPerformed
@@ -461,22 +477,35 @@ public class tabQuanLyTaiKhoan extends javax.swing.JPanel {
         }
 
         int maTaiKhoan = Integer.parseInt(tableModel.getValueAt(selectedRow, 0).toString());
+        
+        String sql = "{call sp_XoaTaiKhoan(?)}"; 
+        try (Connection conn = CRUD.ConnectSQL.getConnection(); 
+             CallableStatement cs = conn.prepareCall(sql)) {
 
-        try (Connection conn = CRUD.ConnectSQL.getConnection()) {
-            String sql = "DELETE FROM TAIKHOAN WHERE maTaiKhoan = ?";
-            try (PreparedStatement ps = conn.prepareStatement(sql)) {
-                ps.setInt(1, maTaiKhoan);
-                int result = ps.executeUpdate();
-                if (result > 0) {
-                    JOptionPane.showMessageDialog(this, "Xóa tài khoản thành công!");
-                    layDuLieu();
-                } else {
-                    JOptionPane.showMessageDialog(this, "Xóa tài khoản thất bại!", "Lỗi", JOptionPane.ERROR_MESSAGE);
-                }
-            }
+            cs.setInt(1, maTaiKhoan);
+
+            cs.execute();
+            JOptionPane.showMessageDialog(this, "Xóa tài khoản thành công!");
+            layDuLieu();
+
         } catch (SQLException ex) {
-            JOptionPane.showMessageDialog(this, "Lỗi SQL: " + ex.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Lỗi khi xoá tài khoản: " + ex.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE);
         }
+//        try (Connection conn = CRUD.ConnectSQL.getConnection()) {
+//            String sql = "DELETE FROM TAIKHOAN WHERE maTaiKhoan = ?";
+//            try (PreparedStatement ps = conn.prepareStatement(sql)) {
+//                ps.setInt(1, maTaiKhoan);
+//                int result = ps.executeUpdate();
+//                if (result > 0) {
+//                    JOptionPane.showMessageDialog(this, "Xóa tài khoản thành công!");
+//                    layDuLieu();
+//                } else {
+//                    JOptionPane.showMessageDialog(this, "Xóa tài khoản thất bại!", "Lỗi", JOptionPane.ERROR_MESSAGE);
+//                }
+//            }
+//        } catch (SQLException ex) {
+//            JOptionPane.showMessageDialog(this, "Lỗi SQL: " + ex.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE);
+//        }
     }//GEN-LAST:event_btnXoaTaiKhoanActionPerformed
 
     private void btnSuaTaiKhoanActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSuaTaiKhoanActionPerformed
@@ -508,53 +537,70 @@ public class tabQuanLyTaiKhoan extends javax.swing.JPanel {
             }
         }
 
-        Connection conn = null;
-        try {
-            conn = CRUD.ConnectSQL.getConnection();
-            conn.setAutoCommit(false);
+        String sql = "{call sp_SuaTaiKhoan(?, ?, ?, ?, ?, ?)}"; 
+        try (Connection conn = CRUD.ConnectSQL.getConnection(); 
+             CallableStatement cs = conn.prepareCall(sql)) {
 
-            String checkUserSql = "SELECT COUNT(*) FROM TAIKHOAN WHERE tenDangNhap = ? AND maTaiKhoan != ?";
-            try (PreparedStatement ps = conn.prepareStatement(checkUserSql)) {
-                ps.setString(1, tenDangNhap);
-                ps.setInt(2, maTaiKhoan);
-                ResultSet rs = ps.executeQuery();
-                if (rs.next() && rs.getInt(1) > 0) {
-                    JOptionPane.showMessageDialog(this, "Tên đăng nhập đã tồn tại ở tài khoản khác!", "Lỗi", JOptionPane.ERROR_MESSAGE);
-                    conn.rollback();
-                    return;
-                }
-            }
+            cs.setString(1, tenDangNhap);
+            cs.setString(2, matKhau);
+            cs.setString(3, trangThai);
+            cs.setString(4, loaiTaiKhoan);
+            cs.setInt(5, maNhanVien);
+            cs.setInt(6, maTaiKhoan);
+            cs.execute();
+            JOptionPane.showMessageDialog(this, "Cập nhật thông tin tài khoản thành công!");
+            layDuLieu();
 
-            String updateSql = "UPDATE TAIKHOAN SET tenDangNhap = ?, matKhau = ?, ngayTao = ?, trangThai = ?, loaiTaiKhoan = ?, maNhanVien = ? WHERE maTaiKhoan = ?";
-            try (PreparedStatement ps = conn.prepareStatement(updateSql)) {
-                ps.setString(1, tenDangNhap);
-                ps.setString(2, matKhau);
-                ps.setString(3, ngayTao);
-                ps.setString(4, trangThai);
-                ps.setString(5, loaiTaiKhoan);
-                ps.setInt(6, maNhanVien);
-                ps.setInt(7, maTaiKhoan);
-
-                int result = ps.executeUpdate();
-                if (result > 0) {
-                    conn.commit();
-                    JOptionPane.showMessageDialog(this, "Cập nhật thông tin tài khoản thành công!");
-                    layDuLieu();
-                } else {
-                    conn.rollback();
-                    JOptionPane.showMessageDialog(this, "Cập nhật thất bại!", "Lỗi", JOptionPane.ERROR_MESSAGE);
-                }
-            }
         } catch (SQLException ex) {
-            try {
-                if (conn != null) conn.rollback();
-            } catch (SQLException e) {}
-            JOptionPane.showMessageDialog(this, "Lỗi SQL: " + ex.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE);
-        } finally {
-            try {
-                if (conn != null) conn.close();
-            } catch (SQLException e) {}
+            JOptionPane.showMessageDialog(this, "Lỗi khi cập nhật tài khoản: " + ex.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE);
         }
+//        Connection conn = null;
+//        try {
+//            conn = CRUD.ConnectSQL.getConnection();
+//            conn.setAutoCommit(false);
+//
+//            String checkUserSql = "SELECT COUNT(*) FROM TAIKHOAN WHERE tenDangNhap = ? AND maTaiKhoan != ?";
+//            try (PreparedStatement ps = conn.prepareStatement(checkUserSql)) {
+//                ps.setString(1, tenDangNhap);
+//                ps.setInt(2, maTaiKhoan);
+//                ResultSet rs = ps.executeQuery();
+//                if (rs.next() && rs.getInt(1) > 0) {
+//                    JOptionPane.showMessageDialog(this, "Tên đăng nhập đã tồn tại ở tài khoản khác!", "Lỗi", JOptionPane.ERROR_MESSAGE);
+//                    conn.rollback();
+//                    return;
+//                }
+//            }
+//
+//            String updateSql = "UPDATE TAIKHOAN SET tenDangNhap = ?, matKhau = ?, ngayTao = ?, trangThai = ?, loaiTaiKhoan = ?, maNhanVien = ? WHERE maTaiKhoan = ?";
+//            try (PreparedStatement ps = conn.prepareStatement(updateSql)) {
+//                ps.setString(1, tenDangNhap);
+//                ps.setString(2, matKhau);
+//                ps.setString(3, ngayTao);
+//                ps.setString(4, trangThai);
+//                ps.setString(5, loaiTaiKhoan);
+//                ps.setInt(6, maNhanVien);
+//                ps.setInt(7, maTaiKhoan);
+//
+//                int result = ps.executeUpdate();
+//                if (result > 0) {
+//                    conn.commit();
+//                    JOptionPane.showMessageDialog(this, "Cập nhật thông tin tài khoản thành công!");
+//                    layDuLieu();
+//                } else {
+//                    conn.rollback();
+//                    JOptionPane.showMessageDialog(this, "Cập nhật thất bại!", "Lỗi", JOptionPane.ERROR_MESSAGE);
+//                }
+//            }
+//        } catch (SQLException ex) {
+//            try {
+//                if (conn != null) conn.rollback();
+//            } catch (SQLException e) {}
+//            JOptionPane.showMessageDialog(this, "Lỗi SQL: " + ex.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE);
+//        } finally {
+//            try {
+//                if (conn != null) conn.close();
+//            } catch (SQLException e) {}
+//        }
     }//GEN-LAST:event_btnSuaTaiKhoanActionPerformed
 
     private void btnLamMoiActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLamMoiActionPerformed

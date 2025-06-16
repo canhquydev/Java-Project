@@ -12,6 +12,7 @@ import com.formdev.flatlaf.extras.FlatSVGIcon;
 import java.awt.Color;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.CallableStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import javax.swing.JOptionPane;
@@ -145,12 +146,6 @@ public class tabQuanLyKhuyenMai extends javax.swing.JPanel {
         jPanel1.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Nhóm món ăn", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Segoe UI", 3, 14))); // NOI18N
 
         jLabel4.setText("Tên nhóm:");
-
-        txtTenNhom.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                txtTenNhomActionPerformed(evt);
-            }
-        });
 
         btnThemNhom.setBackground(new java.awt.Color(51, 204, 255));
         btnThemNhom.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
@@ -393,10 +388,6 @@ public class tabQuanLyKhuyenMai extends javax.swing.JPanel {
         );
     }// </editor-fold>//GEN-END:initComponents
 
-    private void txtTenNhomActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtTenNhomActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_txtTenNhomActionPerformed
-
     private void btnThemNhomActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnThemNhomActionPerformed
         // TODO add your handling code here:
         String tenNhom = txtTenNhom.getText().trim();
@@ -404,19 +395,32 @@ public class tabQuanLyKhuyenMai extends javax.swing.JPanel {
             JOptionPane.showMessageDialog(this, "Tên nhóm món ăn không được để trống!", "Lỗi", JOptionPane.ERROR_MESSAGE);
             return;
         }
+        
+        String sql = "{call sp_ThemNhomMonAn(?)}"; 
+        try (Connection conn = CRUD.ConnectSQL.getConnection(); 
+             CallableStatement cs = conn.prepareCall(sql)) {
 
-        String sql = "INSERT INTO NHOMMONAN (tenNhom) VALUES (?)";
-        try (Connection conn = ConnectSQL.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setString(1, tenNhom);
-            int result = ps.executeUpdate();
-            if (result > 0) {
-                JOptionPane.showMessageDialog(this, "Thêm nhóm món ăn thành công!");
-                layDuLieu();
-                txtTenNhom.setText("");
-            }
+            cs.setString(1, tenNhom);
+
+            cs.execute();
+            JOptionPane.showMessageDialog(this, "Thêm nhóm món ăn thành công!");
+            layDuLieu();
+
         } catch (SQLException ex) {
-            JOptionPane.showMessageDialog(this, "Lỗi khi thêm nhóm món ăn: " + ex.getMessage(), "Lỗi SQL", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Lỗi khi thêm nhóm món ăn: " + ex.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE);
         }
+//        String sql = "INSERT INTO NHOMMONAN (tenNhom) VALUES (?)";
+//        try (Connection conn = ConnectSQL.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+//            ps.setString(1, tenNhom);
+//            int result = ps.executeUpdate();
+//            if (result > 0) {
+//                JOptionPane.showMessageDialog(this, "Thêm nhóm món ăn thành công!");
+//                layDuLieu();
+//                txtTenNhom.setText("");
+//            }
+//        } catch (SQLException ex) {
+//            JOptionPane.showMessageDialog(this, "Lỗi khi thêm nhóm món ăn: " + ex.getMessage(), "Lỗi SQL", JOptionPane.ERROR_MESSAGE);
+//        }
     }//GEN-LAST:event_btnThemNhomActionPerformed
 
     private void btnSuaNhomActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSuaNhomActionPerformed
@@ -434,18 +438,32 @@ public class tabQuanLyKhuyenMai extends javax.swing.JPanel {
         }
 
         int maNhom = (int) tbNhomMonAn.getValueAt(selectedRow, 0);
-        String sql = "UPDATE NHOMMONAN SET tenNhom = ? WHERE maNhom = ?";
-        try (Connection conn = ConnectSQL.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setString(1, tenNhom);
-            ps.setInt(2, maNhom);
-            int result = ps.executeUpdate();
-            if (result > 0) {
-                JOptionPane.showMessageDialog(this, "Cập nhật nhóm món ăn thành công!");
-                layDuLieu();
-            }
+        String sql = "{call sp_SuaNhomMonAn(?, ?)}"; 
+        try (Connection conn = CRUD.ConnectSQL.getConnection(); 
+             CallableStatement cs = conn.prepareCall(sql)) {
+
+            cs.setInt(1, maNhom);
+            cs.setString(2, tenNhom);
+
+            cs.execute();
+            JOptionPane.showMessageDialog(this, "Cập nhật nhóm món ăn thành công!");
+            layDuLieu();
+
         } catch (SQLException ex) {
             JOptionPane.showMessageDialog(this, "Lỗi khi cập nhật nhóm món ăn: " + ex.getMessage(), "Lỗi SQL", JOptionPane.ERROR_MESSAGE);
         }
+//        String sql = "UPDATE NHOMMONAN SET tenNhom = ? WHERE maNhom = ?";
+//        try (Connection conn = ConnectSQL.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+//            ps.setString(1, tenNhom);
+//            ps.setInt(2, maNhom);
+//            int result = ps.executeUpdate();
+//            if (result > 0) {
+//                JOptionPane.showMessageDialog(this, "Cập nhật nhóm món ăn thành công!");
+//                layDuLieu();
+//            }
+//        } catch (SQLException ex) {
+//            JOptionPane.showMessageDialog(this, "Lỗi khi cập nhật nhóm món ăn: " + ex.getMessage(), "Lỗi SQL", JOptionPane.ERROR_MESSAGE);
+//        }
     }//GEN-LAST:event_btnSuaNhomActionPerformed
 
     private void btnXoaNhomActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnXoaNhomActionPerformed
@@ -462,33 +480,47 @@ public class tabQuanLyKhuyenMai extends javax.swing.JPanel {
         }
 
         int maNhom = (int) tbNhomMonAn.getValueAt(selectedRow, 0);
+        
+        String sql = "{call sp_XoaNhomMonAn(?)}"; 
+        try (Connection conn = CRUD.ConnectSQL.getConnection(); 
+             CallableStatement cs = conn.prepareCall(sql)) {
 
-        try (Connection conn = ConnectSQL.getConnection()) {
-            // Kiểm tra xem nhóm có chứa món ăn nào không
-            String checkSql = "SELECT COUNT(*) FROM MONAN WHERE maNhom = ?";
-            try(PreparedStatement psCheck = conn.prepareStatement(checkSql)) {
-                psCheck.setInt(1, maNhom);
-                ResultSet rs = psCheck.executeQuery();
-                if (rs.next() && rs.getInt(1) > 0) {
-                    JOptionPane.showMessageDialog(this, "Không thể xóa! Nhóm này đang chứa các món ăn.", "Xóa bị chặn", JOptionPane.ERROR_MESSAGE);
-                    return;
-                }
-            }
+            cs.setInt(1, maNhom);
 
-            // Nếu không, tiến hành xóa
-            String deleteSql = "DELETE FROM NHOMMONAN WHERE maNhom = ?";
-            try(PreparedStatement psDelete = conn.prepareStatement(deleteSql)) {
-                psDelete.setInt(1, maNhom);
-                int result = psDelete.executeUpdate();
-                if (result > 0) {
-                    JOptionPane.showMessageDialog(this, "Xóa nhóm món ăn thành công!");
-                    layDuLieu();
-                    txtTenNhom.setText("");
-                }
-            }
+            cs.execute();
+            JOptionPane.showMessageDialog(this, "Xóa nhóm món ăn thành công!");
+            layDuLieu();
+
         } catch (SQLException ex) {
             JOptionPane.showMessageDialog(this, "Lỗi khi xóa nhóm món ăn: " + ex.getMessage(), "Lỗi SQL", JOptionPane.ERROR_MESSAGE);
         }
+        
+//        try (Connection conn = ConnectSQL.getConnection()) {
+//            // Kiểm tra xem nhóm có chứa món ăn nào không
+//            String checkSql = "SELECT COUNT(*) FROM MONAN WHERE maNhom = ?";
+//            try(PreparedStatement psCheck = conn.prepareStatement(checkSql)) {
+//                psCheck.setInt(1, maNhom);
+//                ResultSet rs = psCheck.executeQuery();
+//                if (rs.next() && rs.getInt(1) > 0) {
+//                    JOptionPane.showMessageDialog(this, "Không thể xóa! Nhóm này đang chứa các món ăn.", "Xóa bị chặn", JOptionPane.ERROR_MESSAGE);
+//                    return;
+//                }
+//            }
+//
+//            // Nếu không, tiến hành xóa
+//            String deleteSql = "DELETE FROM NHOMMONAN WHERE maNhom = ?";
+//            try(PreparedStatement psDelete = conn.prepareStatement(deleteSql)) {
+//                psDelete.setInt(1, maNhom);
+//                int result = psDelete.executeUpdate();
+//                if (result > 0) {
+//                    JOptionPane.showMessageDialog(this, "Xóa nhóm món ăn thành công!");
+//                    layDuLieu();
+//                    txtTenNhom.setText("");
+//                }
+//            }
+//        } catch (SQLException ex) {
+//            JOptionPane.showMessageDialog(this, "Lỗi khi xóa nhóm món ăn: " + ex.getMessage(), "Lỗi SQL", JOptionPane.ERROR_MESSAGE);
+//        }
     }//GEN-LAST:event_btnXoaNhomActionPerformed
 
     private void tbNhomMonAnMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tbNhomMonAnMouseClicked
@@ -508,22 +540,37 @@ public class tabQuanLyKhuyenMai extends javax.swing.JPanel {
         String tenKM = txtTenKhuyenMai.getText().trim();
         int phanTram = Integer.parseInt(txtPhanTramGiamGia.getText().trim());
         String moTa = txtMoTa.getText().trim();
+        
+        String sql = "{call sp_ThemKhuyenMai(?, ?, ?)}"; 
+        try (Connection conn = CRUD.ConnectSQL.getConnection(); 
+             CallableStatement cs = conn.prepareCall(sql)) {
 
-        String sql = "INSERT INTO KHUYENMAI (TenKhuyenMai, PhanTramGiamGia, MoTa) VALUES (?, ?, ?)";
+            cs.setString(1, tenKM);
+            cs.setInt(2, phanTram);
+            cs.setString(3, moTa);
 
-        try (Connection conn = ConnectSQL.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setString(1, tenKM);
-            ps.setInt(2, phanTram);
-            ps.setString(3, moTa);
+            cs.execute();
+            JOptionPane.showMessageDialog(this, "Thêm khuyến mãi thành công!");
+            layDuLieu();
 
-            int result = ps.executeUpdate();
-            if (result > 0) {
-                JOptionPane.showMessageDialog(this, "Thêm khuyến mãi thành công!");
-                layDuLieu(); // Tải lại bảng
-            }
         } catch (SQLException ex) {
-            JOptionPane.showMessageDialog(this, "Lỗi khi thêm khuyến mãi: " + ex.getMessage(), "Lỗi SQL", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Lỗi khi thêm khuyến mãi: " + ex.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE);
         }
+//        String sql = "INSERT INTO KHUYENMAI (TenKhuyenMai, PhanTramGiamGia, MoTa) VALUES (?, ?, ?)";
+//
+//        try (Connection conn = ConnectSQL.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+//            ps.setString(1, tenKM);
+//            ps.setInt(2, phanTram);
+//            ps.setString(3, moTa);
+//
+//            int result = ps.executeUpdate();
+//            if (result > 0) {
+//                JOptionPane.showMessageDialog(this, "Thêm khuyến mãi thành công!");
+//                layDuLieu(); // Tải lại bảng
+//            }
+//        } catch (SQLException ex) {
+//            JOptionPane.showMessageDialog(this, "Lỗi khi thêm khuyến mãi: " + ex.getMessage(), "Lỗi SQL", JOptionPane.ERROR_MESSAGE);
+//        }
     }//GEN-LAST:event_btnThemKhuyenMaiActionPerformed
 
     private void btnSuaKhuyenMaiActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSuaKhuyenMaiActionPerformed
@@ -542,23 +589,39 @@ public class tabQuanLyKhuyenMai extends javax.swing.JPanel {
         String tenKM = txtTenKhuyenMai.getText().trim();
         int phanTram = Integer.parseInt(txtPhanTramGiamGia.getText().trim());
         String moTa = txtMoTa.getText().trim();
+        
+        String sql = "{call sp_SuaKhuyenMai(?, ?, ?, ?)}"; 
+        try (Connection conn = CRUD.ConnectSQL.getConnection(); 
+             CallableStatement cs = conn.prepareCall(sql)) {
 
-        String sql = "UPDATE KHUYENMAI SET TenKhuyenMai = ?, PhanTramGiamGia = ?, MoTa = ? WHERE MaKhuyenMai = ?";
+            cs.setString(1, tenKM);
+            cs.setInt(2, phanTram);
+            cs.setString(3, moTa);
+            cs.setInt(4, maKM);
 
-        try (Connection conn = ConnectSQL.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setString(1, tenKM);
-            ps.setInt(2, phanTram);
-            ps.setString(3, moTa);
-            ps.setInt(4, maKM);
+            cs.execute();
+            JOptionPane.showMessageDialog(this, "Cập nhật khuyến mãi thành công!");
+            layDuLieu();
 
-            int result = ps.executeUpdate();
-            if (result > 0) {
-                JOptionPane.showMessageDialog(this, "Cập nhật khuyến mãi thành công!");
-                layDuLieu();
-            }
         } catch (SQLException ex) {
-            JOptionPane.showMessageDialog(this, "Lỗi khi cập nhật khuyến mãi: " + ex.getMessage(), "Lỗi SQL", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Lỗi khi cập nhật khuyến mãi: " + ex.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE);
         }
+//        String sql = "UPDATE KHUYENMAI SET TenKhuyenMai = ?, PhanTramGiamGia = ?, MoTa = ? WHERE MaKhuyenMai = ?";
+//
+//        try (Connection conn = ConnectSQL.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+//            ps.setString(1, tenKM);
+//            ps.setInt(2, phanTram);
+//            ps.setString(3, moTa);
+//            ps.setInt(4, maKM);
+//
+//            int result = ps.executeUpdate();
+//            if (result > 0) {
+//                JOptionPane.showMessageDialog(this, "Cập nhật khuyến mãi thành công!");
+//                layDuLieu();
+//            }
+//        } catch (SQLException ex) {
+//            JOptionPane.showMessageDialog(this, "Lỗi khi cập nhật khuyến mãi: " + ex.getMessage(), "Lỗi SQL", JOptionPane.ERROR_MESSAGE);
+//        }
     }//GEN-LAST:event_btnSuaKhuyenMaiActionPerformed
 
     private void btnXoaKhuyenMaiActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnXoaKhuyenMaiActionPerformed
@@ -575,33 +638,46 @@ public class tabQuanLyKhuyenMai extends javax.swing.JPanel {
         }
 
         int maKM = (int) tbKhuyenMai.getValueAt(selectedRow, 0);
+        
+        String sql = "{call sp_XoaKhuyenMai(?)}"; 
+        try (Connection conn = CRUD.ConnectSQL.getConnection(); 
+             CallableStatement cs = conn.prepareCall(sql)) {
 
-        try (Connection conn = ConnectSQL.getConnection()) {
-            // Kiểm tra xem khuyến mãi có đang được áp dụng cho hóa đơn nào không
-            String checkSql = "SELECT COUNT(*) FROM HOADON WHERE maKhuyenMai = ?";
-            try (PreparedStatement psCheck = conn.prepareStatement(checkSql)) {
-                psCheck.setInt(1, maKM);
-                ResultSet rs = psCheck.executeQuery();
-                if (rs.next() && rs.getInt(1) > 0) {
-                    JOptionPane.showMessageDialog(this, "Không thể xóa! Khuyến mãi này đang được áp dụng cho các hóa đơn.", "Xóa bị chặn", JOptionPane.ERROR_MESSAGE);
-                    return;
-                }
-            }
+            cs.setInt(1, maKM);
 
-            // Nếu không, tiến hành xóa
-            String deleteSql = "DELETE FROM KHUYENMAI WHERE MaKhuyenMai = ?";
-            try (PreparedStatement psDelete = conn.prepareStatement(deleteSql)) {
-                psDelete.setInt(1, maKM);
-                int result = psDelete.executeUpdate();
-                if (result > 0) {
-                    JOptionPane.showMessageDialog(this, "Xóa khuyến mãi thành công!");
-                    layDuLieu();
-                }
-            }
+            cs.execute();
+            JOptionPane.showMessageDialog(this, "Xóa khuyến mãi thành công!");
+            layDuLieu();
 
         } catch (SQLException ex) {
-            JOptionPane.showMessageDialog(this, "Lỗi khi xóa khuyến mãi: " + ex.getMessage(), "Lỗi SQL", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Lỗi khi xóa khuyến mãi: " + ex.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE);
         }
+//        try (Connection conn = ConnectSQL.getConnection()) {
+//            // Kiểm tra xem khuyến mãi có đang được áp dụng cho hóa đơn nào không
+//            String checkSql = "SELECT COUNT(*) FROM HOADON WHERE maKhuyenMai = ?";
+//            try (PreparedStatement psCheck = conn.prepareStatement(checkSql)) {
+//                psCheck.setInt(1, maKM);
+//                ResultSet rs = psCheck.executeQuery();
+//                if (rs.next() && rs.getInt(1) > 0) {
+//                    JOptionPane.showMessageDialog(this, "Không thể xóa! Khuyến mãi này đang được áp dụng cho các hóa đơn.", "Xóa bị chặn", JOptionPane.ERROR_MESSAGE);
+//                    return;
+//                }
+//            }
+//
+//            // Nếu không, tiến hành xóa
+//            String deleteSql = "DELETE FROM KHUYENMAI WHERE MaKhuyenMai = ?";
+//            try (PreparedStatement psDelete = conn.prepareStatement(deleteSql)) {
+//                psDelete.setInt(1, maKM);
+//                int result = psDelete.executeUpdate();
+//                if (result > 0) {
+//                    JOptionPane.showMessageDialog(this, "Xóa khuyến mãi thành công!");
+//                    layDuLieu();
+//                }
+//            }
+//
+//        } catch (SQLException ex) {
+//            JOptionPane.showMessageDialog(this, "Lỗi khi xóa khuyến mãi: " + ex.getMessage(), "Lỗi SQL", JOptionPane.ERROR_MESSAGE);
+//        }
     }//GEN-LAST:event_btnXoaKhuyenMaiActionPerformed
 
     private void tbKhuyenMaiMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tbKhuyenMaiMouseClicked

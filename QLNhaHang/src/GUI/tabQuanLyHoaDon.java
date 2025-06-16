@@ -18,6 +18,7 @@ import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.CallableStatement;
 import java.sql.SQLException;
 /**
  *
@@ -46,7 +47,7 @@ public class tabQuanLyHoaDon extends javax.swing.JPanel {
         FlatSVGIcon iconDel = new FlatSVGIcon("Images/delete.svg", 25, 25);
         btnXoaMonAn.setIcon(iconDel);
         FlatSVGIcon iconChange = new FlatSVGIcon("Images/edit.svg", 25, 25);
-        btnSuaHoaDOn.setIcon(iconChange);
+        btnSuaHoaDon.setIcon(iconChange);
         FlatSVGIcon iconnew = new FlatSVGIcon("Images/refresh.svg", 25, 25);
         btnLamMoi.setIcon(iconnew);
         FlatSVGIcon iconpay = new FlatSVGIcon("Images/pay.svg", 25, 25);
@@ -166,7 +167,7 @@ public class tabQuanLyHoaDon extends javax.swing.JPanel {
         btnThemMonAn = new javax.swing.JButton();
         jLabel1 = new javax.swing.JLabel();
         cbMaHoaDon = new javax.swing.JComboBox<>();
-        btnSuaHoaDOn = new javax.swing.JButton();
+        btnSuaHoaDon = new javax.swing.JButton();
         btnLamMoi = new javax.swing.JButton();
         pnThongTinChiTiet = new javax.swing.JPanel();
         jScrollPane3 = new javax.swing.JScrollPane();
@@ -241,12 +242,12 @@ public class tabQuanLyHoaDon extends javax.swing.JPanel {
 
         cbMaHoaDon.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
 
-        btnSuaHoaDOn.setBackground(new java.awt.Color(51, 204, 255));
-        btnSuaHoaDOn.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
-        btnSuaHoaDOn.setText("Sửa hoá đơn");
-        btnSuaHoaDOn.addActionListener(new java.awt.event.ActionListener() {
+        btnSuaHoaDon.setBackground(new java.awt.Color(51, 204, 255));
+        btnSuaHoaDon.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
+        btnSuaHoaDon.setText("Sửa hoá đơn");
+        btnSuaHoaDon.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnSuaHoaDOnActionPerformed(evt);
+                btnSuaHoaDonActionPerformed(evt);
             }
         });
 
@@ -268,7 +269,7 @@ public class tabQuanLyHoaDon extends javax.swing.JPanel {
                 .addGroup(pnChucNangLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(pnChucNangLayout.createSequentialGroup()
                         .addGroup(pnChucNangLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                            .addComponent(btnSuaHoaDOn, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(btnSuaHoaDon, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                             .addComponent(btnThemMonAn, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                             .addComponent(btnTaoHoaDon, javax.swing.GroupLayout.PREFERRED_SIZE, 147, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addGap(50, 50, 50)
@@ -295,7 +296,7 @@ public class tabQuanLyHoaDon extends javax.swing.JPanel {
                     .addComponent(btnThanhToan))
                 .addGap(12, 12, 12)
                 .addGroup(pnChucNangLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(btnSuaHoaDOn)
+                    .addComponent(btnSuaHoaDon)
                     .addComponent(btnLamMoi))
                 .addGap(12, 12, 12)
                 .addGroup(pnChucNangLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
@@ -494,7 +495,6 @@ public class tabQuanLyHoaDon extends javax.swing.JPanel {
             return;
         }
 
-        // Lấy thông tin từ form
         String tenKH = cbTenKhachHang.getSelectedItem().toString();
         int maKH = -1;
         for (KhachHang kh : layDuLieu.getDsKhachHang()) {
@@ -514,32 +514,51 @@ public class tabQuanLyHoaDon extends javax.swing.JPanel {
                 }
             }
         }
+        String sql = "{call sp_ThemHoaDon(?, ?, ?, ?)}"; 
+        try (Connection conn = CRUD.ConnectSQL.getConnection(); 
+             CallableStatement cs = conn.prepareCall(sql)) {
 
-        String sql = "INSERT INTO HOADON (MaNhanVienLap, NgayLapHoaDon, TongTienTruocGiam, SoTienGiam, TongTienPhaiTra, TrangThai, MaKhuyenMai, MaKhachHang) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
-
-        try (Connection conn = ConnectSQL.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setInt(1, this.maNV);
-            ps.setTimestamp(2, new java.sql.Timestamp(new Date().getTime()));
-            ps.setLong(3, 0); // Tiền trước giảm ban đầu
-            ps.setLong(4, 0); // Tiền giảm ban đầu
-            ps.setLong(5, 0); // Tiền phải trả ban đầu
-            ps.setString(6, "Chưa thanh toán");
+            cs.setInt(1, this.maNV);
+            cs.setTimestamp(2, new java.sql.Timestamp(new Date().getTime()));
             if (maKM != null) {
-                ps.setInt(7, maKM);
+                cs.setInt(3, maKM);
             } else {
-                ps.setNull(7, java.sql.Types.INTEGER);
+                cs.setNull(3, java.sql.Types.INTEGER);
             }
-            ps.setInt(8, maKH);
+            cs.setInt(4, maKH);
 
-            int result = ps.executeUpdate();
-            if (result > 0) {
-                JOptionPane.showMessageDialog(this, "Tạo hóa đơn mới thành công!");
-                layDuLieu();
-            }
+            cs.execute();
+            JOptionPane.showMessageDialog(this, "Tạo hóa đơn mới thành công!");
+            layDuLieu();
 
         } catch (SQLException ex) {
-            JOptionPane.showMessageDialog(this, "Lỗi khi tạo hóa đơn: " + ex.getMessage(), "Lỗi SQL", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Lỗi khi tạo hóa đơn: " + ex.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE);
         }
+//        String sql = "INSERT INTO HOADON (MaNhanVienLap, NgayLapHoaDon, TongTienTruocGiam, SoTienGiam, TongTienPhaiTra, TrangThai, MaKhuyenMai, MaKhachHang) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+//
+//        try (Connection conn = ConnectSQL.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+//            ps.setInt(1, this.maNV);
+//            ps.setTimestamp(2, new java.sql.Timestamp(new Date().getTime()));
+//            ps.setLong(3, 0); // Tiền trước giảm ban đầu
+//            ps.setLong(4, 0); // Tiền giảm ban đầu
+//            ps.setLong(5, 0); // Tiền phải trả ban đầu
+//            ps.setString(6, "Chưa thanh toán");
+//            if (maKM != null) {
+//                ps.setInt(7, maKM);
+//            } else {
+//                ps.setNull(7, java.sql.Types.INTEGER);
+//            }
+//            ps.setInt(8, maKH);
+//
+//            int result = ps.executeUpdate();
+//            if (result > 0) {
+//                JOptionPane.showMessageDialog(this, "Tạo hóa đơn mới thành công!");
+//                layDuLieu();
+//            }
+//
+//        } catch (SQLException ex) {
+//            JOptionPane.showMessageDialog(this, "Lỗi khi tạo hóa đơn: " + ex.getMessage(), "Lỗi SQL", JOptionPane.ERROR_MESSAGE);
+//        }
 
     }//GEN-LAST:event_btnTaoHoaDonActionPerformed
 
@@ -564,18 +583,30 @@ public class tabQuanLyHoaDon extends javax.swing.JPanel {
             return;
         }
 
-        String sql = "UPDATE HOADON SET TrangThai = N'Đã thanh toán' WHERE MaHoaDon = ?";
-        try(Connection conn = ConnectSQL.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setInt(1, maHD);
-            int result = ps.executeUpdate();
-            if(result > 0) {
-                JOptionPane.showMessageDialog(this, "Thanh toán thành công!");
-                layDuLieu();
-            }
-        } catch (SQLException ex) {
-            JOptionPane.showMessageDialog(this, "Lỗi khi thanh toán: " + ex.getMessage(), "Lỗi SQL", JOptionPane.ERROR_MESSAGE);
-        }
+        String sql = "{call sp_ThanhToanHoaDon(?)}"; 
+        try (Connection conn = CRUD.ConnectSQL.getConnection(); 
+             CallableStatement cs = conn.prepareCall(sql)) {
 
+            cs.setInt(1, maHD);
+
+            cs.execute();
+            JOptionPane.showMessageDialog(this, "Thanh toán thành công!");
+            layDuLieu();
+
+        } catch (SQLException ex) {
+            JOptionPane.showMessageDialog(this, "Lỗi khi thanh toán: " + ex.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE);
+        }
+//        String sql = "UPDATE HOADON SET TrangThai = N'Đã thanh toán' WHERE MaHoaDon = ?";
+//        try(Connection conn = ConnectSQL.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+//            ps.setInt(1, maHD);
+//            int result = ps.executeUpdate();
+//            if(result > 0) {
+//                JOptionPane.showMessageDialog(this, "Thanh toán thành công!");
+//                layDuLieu();
+//            }
+//        } catch (SQLException ex) {
+//            JOptionPane.showMessageDialog(this, "Lỗi khi thanh toán: " + ex.getMessage(), "Lỗi SQL", JOptionPane.ERROR_MESSAGE);
+//        }
     }//GEN-LAST:event_btnThanhToanActionPerformed
 
     private void btnXoaMonAnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnXoaMonAnActionPerformed
@@ -587,6 +618,11 @@ public class tabQuanLyHoaDon extends javax.swing.JPanel {
         }
 
         int maHD = (int) tbChiTietHoaDon.getValueAt(selectedRow, 0);
+        for(HoaDon hd: layDuLieu.getDsHoaDon())
+            if(hd.getMaHoaDon() == maHD && hd.getTrangThai().equals("Đã thanh toán")){
+                JOptionPane.showMessageDialog(this, "Không thể xoá món ăn cho hoá đơn đã thanh toán");
+                return;
+            }
         String tenMonAn = tbChiTietHoaDon.getValueAt(selectedRow, 1).toString();
 
         int maMonAn = -1;
@@ -596,21 +632,35 @@ public class tabQuanLyHoaDon extends javax.swing.JPanel {
                 break;
             }
         }
+        
+        String sql = "{call sp_XoaChiTietHoaDon(?, ?)}"; 
+        try (Connection conn = CRUD.ConnectSQL.getConnection(); 
+             CallableStatement cs = conn.prepareCall(sql)) {
 
-        String sql = "DELETE FROM CHITIETHOADON WHERE MaHoaDon = ? AND MaMonAn = ?";
-        try(Connection conn = ConnectSQL.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setInt(1, maHD);
-            ps.setInt(2, maMonAn);
+            cs.setInt(1, maHD);
+            cs.setInt(2, maMonAn);
 
-            int result = ps.executeUpdate();
-            if(result > 0) {
-                JOptionPane.showMessageDialog(this, "Xóa món ăn thành công!");
-                layDuLieu();
-                layChiTiet(maHD);
-            }
+            cs.execute();
+            JOptionPane.showMessageDialog(this, "Xóa món ăn thành công!");
+            layDuLieu();
+
         } catch (SQLException ex) {
-            JOptionPane.showMessageDialog(this, "Lỗi khi xóa món ăn: " + ex.getMessage(), "Lỗi SQL", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Lỗi khi xóa món ăn: " + ex.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE);
         }
+//        String sql = "DELETE FROM CHITIETHOADON WHERE MaHoaDon = ? AND MaMonAn = ?";
+//        try(Connection conn = ConnectSQL.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+//            ps.setInt(1, maHD);
+//            ps.setInt(2, maMonAn);
+//
+//            int result = ps.executeUpdate();
+//            if(result > 0) {
+//                JOptionPane.showMessageDialog(this, "Xóa món ăn thành công!");
+//                layDuLieu();
+//                layChiTiet(maHD);
+//            }
+//        } catch (SQLException ex) {
+//            JOptionPane.showMessageDialog(this, "Lỗi khi xóa món ăn: " + ex.getMessage(), "Lỗi SQL", JOptionPane.ERROR_MESSAGE);
+//        }
 
     }//GEN-LAST:event_btnXoaMonAnActionPerformed
 
@@ -640,28 +690,43 @@ public class tabQuanLyHoaDon extends javax.swing.JPanel {
                 break;
             }
         }
+        
+        String sql = "{call sp_ThemChiTietHoaDon(?, ?, ?)}"; 
+        try (Connection conn = CRUD.ConnectSQL.getConnection(); 
+             CallableStatement cs = conn.prepareCall(sql)) {
 
-        String sql = "INSERT INTO CHITIETHOADON (MaHoaDon, MaMonAn, SoLuong) VALUES (?, ?, ?)";
-        try(Connection conn = ConnectSQL.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setInt(1, maHD);
-            ps.setInt(2, maMonAn);
-            ps.setInt(3, soLuong);
-            ps.executeUpdate();
+            cs.setInt(1, maHD);
+            cs.setInt(2, maMonAn);
+            cs.setInt(3, soLuong);
 
+            cs.execute();
             JOptionPane.showMessageDialog(this, "Thêm món ăn thành công!");
             layDuLieu();
-            layChiTiet(maHD);
 
         } catch (SQLException ex) {
-            if (ex.getMessage().contains("PRIMARY KEY")) {
-                JOptionPane.showMessageDialog(this, "Món ăn này đã có trong hóa đơn. Vui lòng xóa và thêm lại với số lượng mới.", "Lỗi trùng lặp", JOptionPane.ERROR_MESSAGE);
-            } else {
-                JOptionPane.showMessageDialog(this, "Lỗi khi thêm món ăn: " + ex.getMessage(), "Lỗi SQL", JOptionPane.ERROR_MESSAGE);
-            }
+            JOptionPane.showMessageDialog(this, "Lỗi khi thêm món ăn: " + ex.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE);
         }
+//        String sql = "INSERT INTO CHITIETHOADON (MaHoaDon, MaMonAn, SoLuong) VALUES (?, ?, ?)";
+//        try(Connection conn = ConnectSQL.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+//            ps.setInt(1, maHD);
+//            ps.setInt(2, maMonAn);
+//            ps.setInt(3, soLuong);
+//            ps.executeUpdate();
+//
+//            JOptionPane.showMessageDialog(this, "Thêm món ăn thành công!");
+//            layDuLieu();
+//            layChiTiet(maHD);
+//
+//        } catch (SQLException ex) {
+//            if (ex.getMessage().contains("PRIMARY KEY")) {
+//                JOptionPane.showMessageDialog(this, "Món ăn này đã có trong hóa đơn. Vui lòng xóa và thêm lại với số lượng mới.", "Lỗi trùng lặp", JOptionPane.ERROR_MESSAGE);
+//            } else {
+//                JOptionPane.showMessageDialog(this, "Lỗi khi thêm món ăn: " + ex.getMessage(), "Lỗi SQL", JOptionPane.ERROR_MESSAGE);
+//            }
+//        }
     }//GEN-LAST:event_btnThemMonAnActionPerformed
 
-    private void btnSuaHoaDOnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSuaHoaDOnActionPerformed
+    private void btnSuaHoaDonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSuaHoaDonActionPerformed
         // TODO add your handling code here:
         int selectedRow = tbHoaDon.getSelectedRow();
         if (selectedRow < 0) {
@@ -716,7 +781,7 @@ public class tabQuanLyHoaDon extends javax.swing.JPanel {
         } catch (SQLException ex) {
             JOptionPane.showMessageDialog(this, "Lỗi khi sửa hóa đơn: " + ex.getMessage(), "Lỗi SQL", JOptionPane.ERROR_MESSAGE);
         }
-    }//GEN-LAST:event_btnSuaHoaDOnActionPerformed
+    }//GEN-LAST:event_btnSuaHoaDonActionPerformed
 
     private void btnLamMoiActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLamMoiActionPerformed
         // TODO add your handling code here:
@@ -744,7 +809,7 @@ public class tabQuanLyHoaDon extends javax.swing.JPanel {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnLamMoi;
-    private javax.swing.JButton btnSuaHoaDOn;
+    private javax.swing.JButton btnSuaHoaDon;
     private javax.swing.JButton btnTaoHoaDon;
     private javax.swing.JButton btnThanhToan;
     private javax.swing.JButton btnThemMonAn;

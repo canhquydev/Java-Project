@@ -376,7 +376,7 @@ public class tabQuanLyMonAn extends javax.swing.JPanel {
             layDuLieu();
 
         } catch (SQLException ex) {
-            JOptionPane.showMessageDialog(this, "Lỗi khi thêm món ăn: " + ex.getMessage(), "Lỗi SQL", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Lỗi khi thêm món ăn: " + ex.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE);
         }
     }//GEN-LAST:event_btnThemMonActionPerformed
 
@@ -414,7 +414,7 @@ public class tabQuanLyMonAn extends javax.swing.JPanel {
             return;
         }
 
-        String sql = "{call sp_CapNhatMonAn(?, ?, ?, ?, ?, ?)}";
+        String sql = "{call sp_SuaMonAn(?, ?, ?, ?, ?, ?)}";
         try (Connection conn = CRUD.ConnectSQL.getConnection();
             CallableStatement cs = conn.prepareCall(sql)) {
 
@@ -430,7 +430,7 @@ public class tabQuanLyMonAn extends javax.swing.JPanel {
             layDuLieu();
 
         } catch (SQLException ex) {
-            JOptionPane.showMessageDialog(this, "Lỗi khi cập nhật món ăn: " + ex.getMessage(), "Lỗi từ CSDL", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Lỗi khi cập nhật món ăn: " + ex.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE);
         }
     }//GEN-LAST:event_btnSuaMonActionPerformed
 
@@ -463,44 +463,58 @@ public class tabQuanLyMonAn extends javax.swing.JPanel {
 
         int maMonAn = Integer.parseInt(tbHienThiMonAn.getValueAt(selectedRow, 0).toString());
 
-        try (Connection conn = CRUD.ConnectSQL.getConnection()) {
-            conn.setAutoCommit(false);
+        String sql = "{call sp_XoaMonAn(?)}"; 
+        try (Connection conn = CRUD.ConnectSQL.getConnection(); 
+             CallableStatement cs = conn.prepareCall(sql)) {
 
-            String checkCTHD_Sql = "SELECT COUNT(*) FROM CHITIETHOADON WHERE MaMonAn = ?";
-            try (PreparedStatement ps = conn.prepareStatement(checkCTHD_Sql)) {
-                ps.setInt(1, maMonAn);
-                ResultSet rs = ps.executeQuery();
-                if (rs.next() && rs.getInt(1) > 0) {
-                    JOptionPane.showMessageDialog(this, "Không thể xóa! Món ăn này đã tồn tại trong các hóa đơn.", "Xóa bị chặn", JOptionPane.ERROR_MESSAGE);
-                    conn.rollback();
-                    return;
-                }
-            }
+            cs.setInt(1, maMonAn);
 
-            String deleteDanhGiaSql = "DELETE FROM DANHGIA WHERE MaMonAn = ?";
-            try (PreparedStatement ps = conn.prepareStatement(deleteDanhGiaSql)) {
-                ps.setInt(1, maMonAn);
-                ps.executeUpdate();
-            }
-
-            String deleteNLMASql = "DELETE FROM NGUYENLIEU_MONAN WHERE MaMonAn = ?";
-            try (PreparedStatement ps = conn.prepareStatement(deleteNLMASql)) {
-                ps.setInt(1, maMonAn);
-                ps.executeUpdate();
-            }
-
-            try (CallableStatement cs = conn.prepareCall("{call sp_XoaMonAn(?)}")) {
-                cs.setInt(1, maMonAn);
-                cs.execute();
-            }
-
-            conn.commit();
+            cs.execute();
             JOptionPane.showMessageDialog(this, "Xóa món ăn và các dữ liệu liên quan thành công!");
             layDuLieu();
 
         } catch (SQLException ex) {
-            JOptionPane.showMessageDialog(this, "Lỗi khi xóa món ăn: " + ex.getMessage(), "Lỗi SQL", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Lỗi khi xóa món ăn: " + ex.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE);
         }
+        
+//        try (Connection conn = CRUD.ConnectSQL.getConnection()) {
+//            conn.setAutoCommit(false);
+//
+//            String checkCTHD_Sql = "SELECT COUNT(*) FROM CHITIETHOADON WHERE MaMonAn = ?";
+//            try (PreparedStatement ps = conn.prepareStatement(checkCTHD_Sql)) {
+//                ps.setInt(1, maMonAn);
+//                ResultSet rs = ps.executeQuery();
+//                if (rs.next() && rs.getInt(1) > 0) {
+//                    JOptionPane.showMessageDialog(this, "Không thể xóa! Món ăn này đã tồn tại trong các hóa đơn.", "Xóa bị chặn", JOptionPane.ERROR_MESSAGE);
+//                    conn.rollback();
+//                    return;
+//                }
+//            }
+//
+//            String deleteDanhGiaSql = "DELETE FROM DANHGIA WHERE MaMonAn = ?";
+//            try (PreparedStatement ps = conn.prepareStatement(deleteDanhGiaSql)) {
+//                ps.setInt(1, maMonAn);
+//                ps.executeUpdate();
+//            }
+//
+//            String deleteNLMASql = "DELETE FROM NGUYENLIEU_MONAN WHERE MaMonAn = ?";
+//            try (PreparedStatement ps = conn.prepareStatement(deleteNLMASql)) {
+//                ps.setInt(1, maMonAn);
+//                ps.executeUpdate();
+//            }
+//
+//            try (CallableStatement cs = conn.prepareCall("{call sp_XoaMonAn(?)}")) {
+//                cs.setInt(1, maMonAn);
+//                cs.execute();
+//            }
+//
+//            conn.commit();
+//            JOptionPane.showMessageDialog(this, "Xóa món ăn và các dữ liệu liên quan thành công!");
+//            layDuLieu();
+//
+//        } catch (SQLException ex) {
+//            JOptionPane.showMessageDialog(this, "Lỗi khi xóa món ăn: " + ex.getMessage(), "Lỗi SQL", JOptionPane.ERROR_MESSAGE);
+//        }
     }//GEN-LAST:event_btnXoaMonActionPerformed
 
     private void tbHienThiMonAnMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tbHienThiMonAnMouseClicked

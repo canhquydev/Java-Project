@@ -15,6 +15,7 @@ import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.CallableStatement;
 import java.sql.SQLException;
 /**
  *
@@ -384,28 +385,42 @@ public class tabQuanLyNhapHang extends javax.swing.JPanel {
         }
 
         java.sql.Date ngayTao = new java.sql.Date(new Date().getTime());
+        String sql = "{call sp_ThemPhieuNhapHang(?, ?, ?)}"; 
+        try (Connection conn = CRUD.ConnectSQL.getConnection(); 
+             CallableStatement cs = conn.prepareCall(sql)) {
 
-        String sql = "INSERT INTO PHIEUNHAPHANG (ngayTao, nhaCungCap, maNhanVienNhap) VALUES (?, ?, ?)";
+            cs.setDate(1, ngayTao);
+            cs.setString(2, nhaCungCap);
+            cs.setInt(3, maNV);
 
-        try (Connection conn = CRUD.ConnectSQL.getConnection();
-            PreparedStatement ps = conn.prepareStatement(sql)) {
-
-            ps.setDate(1, ngayTao);
-            ps.setString(2, nhaCungCap);
-            ps.setInt(3, maNV);
-
-            int result = ps.executeUpdate();
-            if (result > 0) {
-                JOptionPane.showMessageDialog(this, "Tạo phiếu nhập mới thành công!");
-                layDuLieu();
-                txtNhaCungCap.setText("");
-            } else {
-                JOptionPane.showMessageDialog(this, "Tạo phiếu nhập thất bại!", "Lỗi", JOptionPane.ERROR_MESSAGE);
-            }
+            cs.execute();
+            JOptionPane.showMessageDialog(this, "Tạo phiếu nhập mới thành công!");
+            layDuLieu();
 
         } catch (SQLException ex) {
-            JOptionPane.showMessageDialog(this, "Lỗi SQL khi tạo phiếu: " + ex.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Lỗi khi tạo phiếu: " + ex.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE);
         }
+//        String sql = "INSERT INTO PHIEUNHAPHANG (ngayTao, nhaCungCap, maNhanVienNhap) VALUES (?, ?, ?)";
+//
+//        try (Connection conn = CRUD.ConnectSQL.getConnection();
+//            PreparedStatement ps = conn.prepareStatement(sql)) {
+//
+//            ps.setDate(1, ngayTao);
+//            ps.setString(2, nhaCungCap);
+//            ps.setInt(3, maNV);
+//
+//            int result = ps.executeUpdate();
+//            if (result > 0) {
+//                JOptionPane.showMessageDialog(this, "Tạo phiếu nhập mới thành công!");
+//                layDuLieu();
+//                txtNhaCungCap.setText("");
+//            } else {
+//                JOptionPane.showMessageDialog(this, "Tạo phiếu nhập thất bại!", "Lỗi", JOptionPane.ERROR_MESSAGE);
+//            }
+//
+//        } catch (SQLException ex) {
+//            JOptionPane.showMessageDialog(this, "Lỗi SQL khi tạo phiếu: " + ex.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE);
+//        }
     }//GEN-LAST:event_btnThemPhieuActionPerformed
 
     private void btnThemNguyenLieuActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnThemNguyenLieuActionPerformed
@@ -436,7 +451,6 @@ public class tabQuanLyNhapHang extends javax.swing.JPanel {
             JOptionPane.showMessageDialog(this, "Đơn giá không hợp lệ!", "Lỗi", JOptionPane.ERROR_MESSAGE);
             return;
         }
-        long thanhTien = soLuong*donGia;
         int maPhieuNhap = Integer.parseInt(cbMaPhieuNhap.getSelectedItem().toString());
         String tenNguyenLieu = cbNguyenLieu.getSelectedItem().toString();
 
@@ -452,63 +466,79 @@ public class tabQuanLyNhapHang extends javax.swing.JPanel {
             return;
         }
 
-        Connection conn = null;
-        try {
-            conn = CRUD.ConnectSQL.getConnection();
-            conn.setAutoCommit(false);
+        String sql = "{call sp_ThemChiTietNhapHang(?, ?, ?, ?)}"; 
+        try (Connection conn = CRUD.ConnectSQL.getConnection(); 
+             CallableStatement cs = conn.prepareCall(sql)) {
 
-            String checkSql = "SELECT COUNT(*) FROM CHITIETNHAPHANG WHERE maPhieuNhap = ? AND maNguyenLieu = ?";
-            try (PreparedStatement psCheck = conn.prepareStatement(checkSql)) {
-                psCheck.setInt(1, maPhieuNhap);
-                psCheck.setInt(2, maNguyenLieu);
-                var rs = psCheck.executeQuery();
-                if (rs.next() && rs.getInt(1) > 0) {
-                    JOptionPane.showMessageDialog(this, "Nguyên liệu này đã tồn tại trong phiếu nhập!", "Thông báo", JOptionPane.INFORMATION_MESSAGE);
-                    conn.rollback();
-                    return;
-                }
-            }
+            cs.setInt(1, maPhieuNhap);
+            cs.setInt(2, maNguyenLieu);
+            cs.setInt(3, soLuong);
+            cs.setLong(4, donGia);
 
-            String insertSql = "INSERT INTO CHITIETNHAPHANG (maPhieuNhap, maNguyenLieu, soLuongNhap, donGia, thanhTien) VALUES (?, ?, ?, ?, ?)";
-            try (PreparedStatement psInsert = conn.prepareStatement(insertSql)) {
-                psInsert.setInt(1, maPhieuNhap);
-                psInsert.setInt(2, maNguyenLieu);
-                psInsert.setInt(3, soLuong);
-                psInsert.setLong(4, donGia);
-                psInsert.setLong(5, thanhTien);
-                psInsert.executeUpdate();
-            }
-
-            // Cập nhật số lượng tồn kho
-            //            String updateSql = "UPDATE NGUYENLIEU SET soLuongTon = soLuongTon + ? WHERE maNguyenLieu = ?";
-            //            try (PreparedStatement psUpdate = conn.prepareStatement(updateSql)) {
-                //                psUpdate.setInt(1, soLuong);
-                //                psUpdate.setInt(2, maNguyenLieu);
-                //                psUpdate.executeUpdate();
-                //            }
-
-            conn.commit();
+            cs.execute();
             JOptionPane.showMessageDialog(this, "Thêm nguyên liệu vào phiếu thành công!");
-            layChiTiet(maPhieuNhap);
+            layDuLieu();
 
         } catch (SQLException ex) {
-            JOptionPane.showMessageDialog(this, "Lỗi SQL: " + ex.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE);
-            if (conn != null) {
-                try {
-                    conn.rollback();
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
-            }
-        } finally {
-            if (conn != null) {
-                try {
-                    conn.close();
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
-            }
+            JOptionPane.showMessageDialog(this, "Lỗi khi thêm nguyên liệu: " + ex.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE);
         }
+//        Connection conn = null;
+//        try {
+//            conn = CRUD.ConnectSQL.getConnection();
+//            conn.setAutoCommit(false);
+//
+//            String checkSql = "SELECT COUNT(*) FROM CHITIETNHAPHANG WHERE maPhieuNhap = ? AND maNguyenLieu = ?";
+//            try (PreparedStatement psCheck = conn.prepareStatement(checkSql)) {
+//                psCheck.setInt(1, maPhieuNhap);
+//                psCheck.setInt(2, maNguyenLieu);
+//                var rs = psCheck.executeQuery();
+//                if (rs.next() && rs.getInt(1) > 0) {
+//                    JOptionPane.showMessageDialog(this, "Nguyên liệu này đã tồn tại trong phiếu nhập!", "Thông báo", JOptionPane.INFORMATION_MESSAGE);
+//                    conn.rollback();
+//                    return;
+//                }
+//            }
+//
+//            String insertSql = "INSERT INTO CHITIETNHAPHANG (maPhieuNhap, maNguyenLieu, soLuongNhap, donGia, thanhTien) VALUES (?, ?, ?, ?, ?)";
+//            try (PreparedStatement psInsert = conn.prepareStatement(insertSql)) {
+//                psInsert.setInt(1, maPhieuNhap);
+//                psInsert.setInt(2, maNguyenLieu);
+//                psInsert.setInt(3, soLuong);
+//                psInsert.setLong(4, donGia);
+//                psInsert.setLong(5, thanhTien);
+//                psInsert.executeUpdate();
+//            }
+//
+//            // Cập nhật số lượng tồn kho
+//            //            String updateSql = "UPDATE NGUYENLIEU SET soLuongTon = soLuongTon + ? WHERE maNguyenLieu = ?";
+//            //            try (PreparedStatement psUpdate = conn.prepareStatement(updateSql)) {
+//                //                psUpdate.setInt(1, soLuong);
+//                //                psUpdate.setInt(2, maNguyenLieu);
+//                //                psUpdate.executeUpdate();
+//                //            }
+//
+//            conn.commit();
+//            JOptionPane.showMessageDialog(this, "Thêm nguyên liệu vào phiếu thành công!");
+//            layChiTiet(maPhieuNhap);
+//
+//        } catch (SQLException ex) {
+//            JOptionPane.showMessageDialog(this, "Lỗi SQL: " + ex.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE);
+//            if (conn != null) {
+//                try {
+//                    conn.rollback();
+//                } catch (SQLException e) {
+//                    e.printStackTrace();
+//                }
+//            }
+//        } finally {
+//            if (conn != null) {
+//                try {
+//                    conn.close();
+//                } catch (SQLException e) {
+//                    e.printStackTrace();
+//                }
+//            }
+//        }
     }//GEN-LAST:event_btnThemNguyenLieuActionPerformed
 
     private void btnXoaNguyenLieuActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnXoaNguyenLieuActionPerformed
