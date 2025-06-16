@@ -1247,15 +1247,11 @@ begin
 			where ct.MaHoaDon = HOADON.MaHoaDon), 0) * isnull((
 			select km.PhanTramGiamGia
 			from KHUYENMAI km
-			where km.MaKhuyenMai = HOADON.MaKhuyenMai), 0) / 100.0,
-		TongTienPhaiTra = isnull((select sum(ct.SoLuong * m.DonGia)
-			from CHITIETHOADON ct
-			join MONAN m on ct.MaMonAn = m.MaMonAn
-			where ct.MaHoaDon = HOADON.MaHoaDon), 0) * (1 - isnull((
-			select km.PhanTramGiamGia
-			from KHUYENMAI km
-			where km.MaKhuyenMai = HOADON.MaKhuyenMai), 0) / 100.0)
+			where km.MaKhuyenMai = HOADON.MaKhuyenMai), 0) / 100.0
 	where MaHoaDon in (select MaHoaDon from @dsMaHoaDon)
+	update HOADON
+    set TongTienPhaiTra = TongTienTruocGiam - SoTienGiam
+    where MaHoaDon IN (select MaHoaDon from @dsMaHoaDon);
 end
 go
 -- Trigger thêm một chi tiết đặt bàn từ khách hàng
