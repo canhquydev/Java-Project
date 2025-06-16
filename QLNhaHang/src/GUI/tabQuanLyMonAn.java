@@ -59,7 +59,7 @@ public class tabQuanLyMonAn extends javax.swing.JPanel {
         cbTrangThai.removeAllItems();
         cbTrangThai.addItem("Chọn trạng thái");
         cbTrangThai.addItem("Hoạt động");
-        cbTrangThai.addItem("Ngừng bán");
+        cbTrangThai.addItem("Ngừng kinh doanh");
         
         Set<String> set = new HashSet<>();
         for(MonAn mon: layDuLieu.getDsMonAn()){

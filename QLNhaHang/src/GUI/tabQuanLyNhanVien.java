@@ -442,7 +442,7 @@ public class tabQuanLyNhanVien extends javax.swing.JPanel {
         String diaChi = txtDiaChi.getText().trim();
         String chucVu = cbChucVu.getSelectedItem().toString();
         String nguoiQuanLySelected = cbNguoiQuanLy.getSelectedItem() != null ? cbNguoiQuanLy.getSelectedItem().toString() : "";
-
+        System.out.println(nguoiQuanLySelected);
         // 3. Kiểm tra logic nghiệp vụ
         if (soDienThoai.length() != 10 || !soDienThoai.matches("\\d{10}")) {
             JOptionPane.showMessageDialog(this, "Số điện thoại phải có 10 chữ số.", "Lỗi định dạng", JOptionPane.ERROR_MESSAGE);
@@ -456,9 +456,10 @@ public class tabQuanLyNhanVien extends javax.swing.JPanel {
             JOptionPane.showMessageDialog(this, "Lương cơ bản phải là một con số.", "Lỗi định dạng", JOptionPane.ERROR_MESSAGE);
             return;
         }
-
+        System.out.println(chucVu.trim().equals("Quản lý nhân sự") || chucVu.trim().equals("Quản lý kho và bếp"));
+//        System.out.println(chucVu.trim().equals("Quản lý nhân sự") || chucVu.trim().equals("Quản lý kho và bếp"));
         Integer maQuanLy = null;
-        if (!chucVu.trim().equals("Quản lý nhân sự") || !chucVu.trim().equals("Quản lý kho và bếp")) {
+        if (!chucVu.trim().equals("Quản lý nhân sự") && !chucVu.trim().equals("Quản lý kho và bếp")) {
             if (nguoiQuanLySelected.isEmpty()) {
                 JOptionPane.showMessageDialog(this, "Nhân viên phải có người quản lý.", "Lỗi logic", JOptionPane.ERROR_MESSAGE);
                 return;
@@ -473,7 +474,8 @@ public class tabQuanLyNhanVien extends javax.swing.JPanel {
                 JOptionPane.showMessageDialog(this, "Không tìm thấy người quản lý được chọn.", "Lỗi dữ liệu", JOptionPane.ERROR_MESSAGE);
                 return;
             }
-        } else { 
+        } else if(chucVu.trim().equals("Quản lý nhân sự") || chucVu.trim().equals("Quản lý kho và bếp")){ 
+            System.out.println(!nguoiQuanLySelected.isEmpty());
             if (!nguoiQuanLySelected.isEmpty()) {
                 JOptionPane.showMessageDialog(this, "Một Quản lý không có người quản lý.", "Lỗi logic", JOptionPane.ERROR_MESSAGE);
                 return;

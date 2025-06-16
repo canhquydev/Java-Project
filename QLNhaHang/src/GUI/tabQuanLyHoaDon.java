@@ -102,6 +102,9 @@ public class tabQuanLyHoaDon extends javax.swing.JPanel {
         cbMaHoaDon.removeAllItems();
         cbTenKhachHang.addItem("Chọn mã hoá đơn");
         for(HoaDon hd: layDuLieu.getDsHoaDon()){
+            long tienTruoc = (long) hd.getTongTienTruocGiam();
+            long tienDuocGiam = (long) hd.getSoTienGiam();
+            long tienDaGiam = (long) hd.getTongTienTruocGiam();
             cbMaHoaDon.addItem(String.valueOf(hd.getMaHoaDon()));
             String tenKM = "";
             for(KhuyenMai km: layDuLieu.getDsKhuyenMai()){
@@ -121,9 +124,9 @@ public class tabQuanLyHoaDon extends javax.swing.JPanel {
                 hd.getMaHoaDon(),
                 hd.getMaNhanVienLap(),
                 hd.getNgayLapHoaDon(),
-                hd.getTongTienTruocGiam(),
-                hd.getSoTienGiam(),
-                hd.getTongTienPhaiTra(),
+                tienTruoc,
+                tienDuocGiam,
+                tienDaGiam,
                 hd.getTrangThai(),
                 tenKM,
                 tenKH

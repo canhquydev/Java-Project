@@ -204,8 +204,8 @@ Alter table NGUYENLIEU_MONAN add  foreign key(MaNguyenLieu) references NGUYENLIE
 go
 Alter table CHITIETNHAPHANG add  foreign key(MaNguyenLieu) references NGUYENLIEU (MaNguyenLieu)  on update no action on delete no action 
 go
---======================================================INSERT INTO=====================================================
 
+--======================================================INSERT INTO=====================================================
 insert into KHACHHANG (TenKhachHang, SoDienThoai, DiaChi) values
 (N'Hoàng Gia Huy', '0920154470', N'416 Nguyễn Trãi, Q5'),
 (N'Đặng Nhật Quân', '0972750775', N'102 Lý Thường Kiệt, Q10'),
@@ -603,48 +603,47 @@ INSERT INTO NGUYENLIEU_MONAN (MaMonAn, MaNguyenLieu, SoLuong) VALUES
 (25, 4, 1),
 (26, 37, 1),
 (28, 38, 1);
-
 INSERT INTO HOADON (MaNhanVienLap, NgayLapHoaDon, TongTienTruocGiam, SoTienGiam, TongTienPhaiTra, TrangThai, MaKhuyenMai, MaKhachHang) VALUES
-(3, '2020-07-20', 9354000, 20000, 10513000, N'Đã thanh toán', 16, 3),
-(7, '2021-04-11', 8109000, 0, 8758000, N'Chưa thanh toán', NULL, 1),
-(4, '2022-01-05', 12965000, 0, 13454000, N'Chưa thanh toán', 1, 4),
-(4, '2023-03-05', 13615000, 10000, 14026000, N'Đã thanh toán', 11, 6),
-(6, '2024-05-09', 1021000, 0, 403000, N'Đã thanh toán', NULL, 5),
-(5, '2020-09-09', 8686000, 0, 1148000, N'Đã thanh toán', NULL, 7),
-(6, '2021-02-03', 4398000, 0, 1030000, N'Đã thanh toán', NULL, 9),
-(7, '2022-06-09', 4595000, 10000, 1643000, N'Chưa thanh toán', 6, 6),
-(3, '2023-08-10', 6606000, 0, 1888000, N'Đã thanh toán', NULL, 10),
-(4, '2024-01-05', 1587000, 0, 344000, N'Đã thanh toán', NULL, 11),
-(6, '2025-03-15', 3306000, 50000, 1017000, N'Chưa thanh toán', 20, 12),
-(5, '2020-10-01', 9561000, 10000, 424000, N'Chưa thanh toán', 14, 1),
-(7, '2021-07-05', 3840000, 0, 722000, N'Đã thanh toán', NULL, 1),
-(5, '2020-08-20', 5250000, 50000, 5200000, N'Đã thanh toán', 1, 2),
-(3, '2021-01-10', 8700000, 0, 8700000, N'Chưa thanh toán', NULL, 3),
-(4, '2022-03-05', 12300000, 100000, 12200000, N'Đã thanh toán', 5, 4),
-(7, '2023-07-25', 6800000, 0, 6800000, N'Đã thanh toán', NULL, 1),
-(3, '2024-02-14', 9900000, 50000, 9850000, N'Đã thanh toán', 10, 5),
-(5, '2020-11-01', 3400000, 0, 3400000, N'Chưa thanh toán', NULL, 6),
-(7, '2021-09-19', 7500000, 20000, 7480000, N'Đã thanh toán', 15, 7),
-(3, '2022-12-08', 10500000, 0, 10500000, N'Chưa thanh toán', NULL, 8),
-(6, '2023-04-03', 4900000, 10000, 4890000, N'Đã thanh toán', 2, 9),
-(7, '2024-11-29', 11200000, 150000, 11050000, N'Đã thanh toán', 12, 10),
-(4, '2020-09-01', 6700000, 10000, 6690000, N'Đã thanh toán', 3, 11),
-(3, '2021-06-15', 9200000, 0, 9200000, N'Chưa thanh toán', NULL, 12),
-(5, '2022-01-20', 4100000, 50000, 4050000, N'Đã thanh toán', 7, 1),
-(4, '2023-09-10', 8800000, 0, 8800000, N'Đã thanh toán', NULL, 2),
-(7, '2024-07-02', 15000000, 200000, 14800000, N'Chưa thanh toán', 19, 3),
-(4, '2025-01-05', 7300000, 0, 7300000, N'Đã thanh toán', NULL, 4),
-(5, '2025-05-20', 5800000, 10000, 5790000, N'Đã thanh toán', 9, 5),
-(3, '2020-06-25', 7500000, 50000, 7450000, N'Đã thanh toán', 1, 15),
-(4, '2021-08-12', 11200000, 0, 11200000, N'Chưa thanh toán', NULL, 18),
-(5, '2022-04-30', 9800000, 100000, 9700000, N'Đã thanh toán', 5, 21),
-(6, '2023-01-18', 6100000, 0, 6100000, N'Chưa thanh toán', NULL, 24),
-(7, '2024-03-08', 13500000, 200000, 13300000, N'Đã thanh toán', 10, 26),
-(3, '2020-10-15', 4800000, 0, 4800000, N'Đã thanh toán', NULL, 17),
-(4, '2021-11-22', 8900000, 80000, 8820000, N'Chưa thanh toán', 15, 19),
-(5, '2022-09-01', 7200000, 0, 7200000, N'Đã thanh toán', NULL, 22),
-(6, '2023-05-11', 10300000, 150000, 10150000, N'Đã thanh toán', 12, 25),
-(7, '2024-06-10', 5600000, 0, 5600000, N'Chưa thanh toán', NULL, 20);
+(3, '2020-07-20', 355000, 0, 355000, N'Đã thanh toán', NULL, 3),
+(7, '2021-04-11', 517000, 0, 517000, N'Chưa thanh toán', NULL, 1),
+(4, '2022-01-05', 159000, 0, 159000, N'Chưa thanh toán', NULL, 4),
+(4, '2023-03-05', 150000, 0, 150000, N'Đã thanh toán', NULL, 6),
+(6, '2024-05-09', 103000, 0, 103000, N'Đã thanh toán', NULL, 5),
+(5, '2020-09-09', 217000, 0, 217000, N'Đã thanh toán', NULL, 7),
+(6, '2021-02-03', 239000, 0, 239000, N'Đã thanh toán', NULL, 9),
+(7, '2022-06-09', 238000, 35700, 202300, N'Chưa thanh toán', 6, 6),
+(3, '2023-08-10', 138000, 0, 138000, N'Đã thanh toán', NULL, 10),
+(4, '2024-01-05', 369000, 0, 369000, N'Đã thanh toán', NULL, 11),
+(6, '2025-03-15', 180000, 0, 180000, N'Chưa thanh toán', NULL, 12),
+(5, '2020-10-01', 5124000, 0, 5124000, N'Chưa thanh toán', NULL, 1),
+(7, '2021-07-05', 240000, 0, 240000, N'Đã thanh toán', NULL, 1),
+(5, '2020-08-20', 147000, 14700, 132300, N'Đã thanh toán', 1, 2),
+(3, '2021-01-10', 2109000, 0, 2109000, N'Chưa thanh toán', NULL, 3),
+(4, '2022-03-05', 1849000, 184900, 1664100, N'Đã thanh toán', 5, 4),
+(7, '2023-07-25', 2316000, 0, 2316000, N'Đã thanh toán', NULL, 1),
+(3, '2024-02-14', 1880000, 282000, 1598000, N'Đã thanh toán', 10, 5),
+(5, '2020-11-01', 3568000, 0, 3568000, N'Chưa thanh toán', NULL, 6),
+(7, '2021-09-19', 7480000, 0, 7480000, N'Đã thanh toán', NULL, 7),
+(3, '2022-12-08', 9794000, 0, 9794000, N'Chưa thanh toán', NULL, 8),
+(6, '2023-04-03', 8870000, 1330500, 7539500, N'Đã thanh toán', 2, 9),
+(7, '2024-11-29', 11900000, 0, 11900000, N'Đã thanh toán', NULL, 10),
+(4, '2020-09-01', 12200000, 2440000, 9760000, N'Đã thanh toán', 3, 11),
+(3, '2021-06-15', 13600000, 0, 13600000, N'Chưa thanh toán', NULL, 12),
+(5, '2022-01-20', 142000, 35500, 106500, N'Đã thanh toán', 7, 1),
+(4, '2023-09-10', 96000, 0, 96000, N'Đã thanh toán', NULL, 2),
+(7, '2024-07-02', 2100000, 0, 2100000, N'Chưa thanh toán', NULL, 3),
+(4, '2025-01-05', 125000, 0, 125000, N'Đã thanh toán', NULL, 4),
+(5, '2025-05-20', 97000, 9700, 87300, N'Đã thanh toán', 9, 5),
+(3, '2020-06-25', 106000, 10600, 95400, N'Đã thanh toán', 1, 15),
+(4, '2021-08-12', 103000, 0, 103000, N'Chưa thanh toán', NULL, 18),
+(5, '2022-04-30', 41000, 4100, 36900, N'Đã thanh toán', 5, 21),
+(6, '2023-01-18', 68000, 0, 68000, N'Chưa thanh toán', NULL, 24),
+(7, '2024-03-08', 216000, 32400, 183600, N'Đã thanh toán', 10, 26),
+(3, '2020-10-15', 2248000, 0, 2248000, N'Đã thanh toán', NULL, 17),
+(4, '2021-11-22', 1792000, 0, 1792000, N'Chưa thanh toán', NULL, 19),
+(5, '2022-09-01', 2080000, 0, 2080000, N'Đã thanh toán', NULL, 22),
+(6, '2023-05-11', 2294000, 0, 2294000, N'Đã thanh toán', NULL, 25),
+(7, '2024-06-10', 3400000, 0, 3400000, N'Chưa thanh toán', NULL, 20);
 
 INSERT INTO DANHGIA (MaKhachHang, MaMonAn, NoiDungDanhGia, ThoiGianDanhGia, DiemDanhGia) VALUES
 (1, 3, N'Ngon xuất sắc!', '2025-04-06', 5),
@@ -1384,8 +1383,61 @@ begin
 	where MaNguyenLieu = @MaNguyenLieu
 end
 
+--======================================================HÀM (FUNCTION)=====================================================
+--Hàm thống kê doanh thu, thu và chi theo từng ngày với Ngày bắt đầu thống kê và Ngày kết thúc thống kê nhập từ bàn phím
+go
+create function fn_ThongKeDoanhThuTheoNgay(@NgayBatDau date,@NgayKetThuc date)
+returns @tabletkngay table(
+	ThoiGian date,
+	DoanhThu money,
+	Thu money,
+	Chi money
+)
+as
+begin
+	insert into @tabletkngay 
+		select NgayThongKe, sum(DoanhThu), sum(Thu), SUM(Chi)
+		from PHIEUTHONGKE where NgayThongKe between @NgayBatDau and @NgayKetThuc
+		group by NgayThongKe order by NgayThongKe
+	return
+end
+go
 
-
+--Hàm thống kê doanh thu, thu và chi theo từng tháng với Ngày bắt đầu thống kê và Ngày kết thúc thống kê nhập từ bàn phím
+go
+create function fn_ThongKeDoanhThuTheoThang(@NgayBatDau date,@NgayKetThuc date)
+returns @tabletkthang table(
+	ThoiGian nvarchar(7),
+	DoanhThu money,
+	Thu money,
+	Chi money
+)
+as
+begin
+	insert into @tabletkthang
+		select format(NgayThongKe, 'yyyy-MM') as 'ThoiGian', sum(DoanhThu) as 'DoanhThu', sum(Thu) as 'Thu', sum(Chi) as 'Chi'
+		from PHIEUTHONGKE where NgayThongKe between @NgayBatDau and @NgayKetThuc
+		group by format(NgayThongKe, 'yyyy-MM') order by format(NgayThongKe, 'yyyy-MM')
+	return
+end
+go
+--Hàm thống kê doanh thu, thu và chi theo từng năm với Ngày bắt đầu thống kê và Ngày kết thúc thống kê nhập từ bàn phím
+go
+create function fn_ThongKeDoanhThuTheoNam(@NgayBatDau date,@NgayKetThuc date)
+returns @tabletknam table(
+	ThoiGian int,
+	DoanhThu money,
+	Thu money,
+	Chi money
+)
+as
+begin
+	insert into @tabletknam
+		select year(NgayThongKe) as 'ThoiGian', sum(DoanhThu) as 'DoanhThu', sum(Thu) as 'Thu', sum(Chi) as 'Chi'
+		from PHIEUTHONGKE where NgayThongKe between @NgayBatDau and @NgayKetThuc
+		group by year(NgayThongKe) order by year(NgayThongKe)
+	return
+end
 --======================================================KIỂM TRA TRÙNG LẶP DỮ LIỆU=====================================================
 --Tìm và in ra các khách hàng có số điện thoại bị trùng
 declare @sdt char(10)
@@ -2298,222 +2350,6 @@ join nhanvien on phieunhaphang.MaNhanVienNhap = nhanvien.MaNhanVien
 join chitietnhaphang on phieunhaphang.MaPhieuNhap = chitietnhaphang.MaPhieuNhap
 join nguyenlieu on chitietnhaphang.MaNguyenLieu = nguyenlieu.MaNguyenLieu
 order by phieunhaphang.MaPhieuNhap, nguyenlieu.TenNguyenLieu;
---======================================================HÀM (FUNCTION)=====================================================
-
---> Hàm trả về tên của người dùng với Mã khách hàng nhập từ bàn phím
-go
-	create function fn_TraVeTenKhachHang(@MaKhachHang char(10))
-	returns nvarchar(50)
-	as
-	begin
-		declare @TenKhachHang nvarchar(50)
-		set @TenKhachHang = (select TenKhachHang from KHACHHANG where MaKhachHang = @MaKhachHang)
-		return @TenKhachHang
-	end
-go
-
---select dbo.fn_TraVeTenKhachHang ('KH001') as N'Tên khách hàng'
---select *from KHACHHANG
-
-
---> hàm đếm số lượng bàn, loại bàn điều kiện Trạng thái còn bàn với số lượng chỗ ngồi nhập từ bàn phím
-go
-	create function fn_SoLuong_LoaiBan(@SoLuongCho int)
-	returns @table_soluong_loaiban table(
-		LoaiBan nvarchar(50),
-		SoLuongCon int
-	)
-	as
-	begin
-		insert into @table_soluong_loaiban
-			select LoaiBan, count(*) from BAN where SoLuongCho = @SoLuongCho and TrangThai = N'Còn Bàn'
-			group by LoaiBan
-		return
-	end
-go
---select *from fn_SoLuong_LoaiBan (4)
---select *from BAN
-
-
---> Hàm trả về tổng số tiền ban đầu, tổng số tiền giảm giá, tổng số tiền sau khi giảm giá của một Hóa đơn với trạng thái và ngày lập được nhập từ bàn phím
-go
-	create function fn_TongTien(@TrangThai nvarchar(50),@NgayLap datetime)
-	returns @table_TongTien table(
-		TongTienBanDau money,
-		TongTienGiamGia money,
-		TongTienThanhToan money
-	)
-	as
-	begin
-		insert into @table_TongTien
-			select sum(TongTienTruocGiam),sum(SoTienGiam),sum(TongTienPhaiTra) from HOADON where TrangThai = @TrangThai and NgayLapHoaDon = @NgayLap
-		return
-	end
-go
-
---select *from fn_TongTien (N'Đã thanh toán','2025-')
---select *from HOADON
-
--->Hàm đếm số lượng đơn hàng của một khách hàng với tên khách hàng, số điện thoại được nhập từ bàn phím
-go
-	create function fn_SoLuongDonHang(@TenKhachHang nvarchar(50),@SoDienthoai char(10))
-	returns int
-	as
-	begin
-		declare @SoLuong int
-		set @SoLuong = (select count(*) from HOADON inner join KHACHHANG on KHACHHANG.MaKhachHang = HOADON.MaKhachHang where TenKhachHang = @TenKhachHang and SoDienThoai = @SoDienthoai
-						group by TenKhachHang,SoDienThoai)
-		return @SoLuong
-	end
-go
---select dbo.fn_SoLuongDonHang (N'Hà Văn An','0912345678') as N'Số lượng đơn hàng'
---select *from HOADON inner join KHACHHANG on KHACHHANG.MaKhachHang = HOADON.MaKhachHang
 
 
 
---> Hàm tính tổng doanh thu trong tháng @Thang của năm @Nam
-go
-	create function fn_DoanhThuTheoThang(@Month int,@Year int)
-	returns money
-	as
-	begin
-		declare @TongDoanhThu money
-		set @TongDoanhThu = (select sum(DoanhThu) from PHIEUTHONGKE where month(NgayThongKe) = @Month and year(NgayThongKe) = @Year)
-		return @TongDoanhThu
-	end
-go
---select dbo.fn_DoanhThuTheoThang(4,2025) as N'Doanh thu của tháng đó là'
---select *from PHIEUTHONGKE
-
--->Hàm trả về danh sách nhân viên làm trong ngày @NgayLam nhập từ bàn phím
-go
-	create function fn_DanhSachLamViec(@NgayLam date)
-	returns @table_DanhSachLamViec table(
-		MaNhanVien char(10),
-		HoTen nvarchar(50)
-	)
-	as
-	begin
-		insert into @table_DanhSachLamViec
-			select NHANVIEN.MaNhanVien, HoTen from NHANVIEN inner join NHANVIEN_CALAMVIEC on NHANVIEN.MaNhanVien = NHANVIEN_CALAMVIEC.MaNhanVien where NgayLam = @NgayLam
-		return
-	end
-go
---select *from fn_DanhSachLamViec ('2025-04-10')
---select *from NHANVIEN  inner join NHANVIEN_CALAMVIEC on NHANVIEN.MaNhanVien = NHANVIEN_CALAMVIEC.MaNhanVien
-
---> Hàm đưa ra danh sách các món ăn với trạng thái còn món trong một nhóm món ăn với Tên nhóm được nhập từ bàn phím
-go
-	create function fn_SoMonAnTrongNhom(@TenNhom nvarchar(50))
-	returns @table_DanhSach table(
-		MaMonAn char(10),
-		TenMonAn nvarchar(50),
-		DonGia money
-	)
-	as
-	begin
-		insert into @table_DanhSach
-			select MaMonAn,TenMon,DonGia from MONAN inner join NHOMMONAN on MONAN.MaNhom = NHOMMONAN.MaNhom
-			where TenNhom = @TenNhom and TrangThai = N'Hoạt động'
-		return
-	end
-go
-
---select *from fn_SoMonAnTrongNhom (N'Món Chính')
---select *from MONAN inner join NHOMMONAN on MONAN.MaNhom = NHOMMONAN.MaNhom
-
---> Đưa ra số lượt đánhh giá của món ăn với tên món ăn và thời gian đánh giá được nhập từ bàn phím
-go
-	create function fn_SoLuotDanhGia(@TenMon nvarchar(50),@ThoiGianDanhGia datetime)
-	returns int
-	as
-	begin
-		declare @SoLuotDanhGia int
-		set @SoLuotDanhGia = (select count(*) from DANHGIA inner join MONAN on DANHGIA.MaMonAn = MONAN.MaMonAn
-								where TenMon = @TenMon and ThoiGianDanhGia = @ThoiGianDanhGia
-								group by TenMon,ThoiGianDanhGia)
-		return @SoLuotDanhGia
-	end
-go
-
---select dbo.fn_SoLuotDanhGia (N'Cơm gà',N'2025-04-11') as N'Số lượt đánh giá'
---select *from DANHGIA inner join MONAN on DANHGIA.MaMonAn = MONAN.MaMonAn
-
---> Hàm tính tổng số lượng món ăn thuộc nhóm món ăn @TenNhom được nhập từ bàn phím
-go
-	create function fn_TongSLMonAn(@TenNhom nvarchar(50))
-	returns int
-	as
-	begin
-		declare @TongSoLuong int
-		set @TongSoLuong = (select sum(SoLuong) from  NHOMMONAN inner join MONAN on NHOMMONAN.MaNhom = MONAN.MaNhom inner join CHITIETHOADON on MONAN.MaMonAn = CHITIETHOADON.MaMonAn
-							where TenNhom = @TenNhom)
-		return @TongSoLuong
-	end
-go
-
---select dbo.fn_TongSLMonAn (N'Món chính') as N'Tổng số lượng món ăn'
---select TenNhom, TenMon, SoLuong from NHOMMONAN inner join MONAN on NHOMMONAN.MaNhom = MONAN.MaNhom inner join CHITIETHOADON on MONAN.MaMonAn = CHITIETHOADON.MaMonAn
-
-
-
---Hàm thống kê doanh thu, thu và chi theo từng ngày với Ngày bắt đầu thống kê và Ngày kết thúc thống kê nhập từ bàn phím
-go
-create function fn_ThongKeDoanhThuTheoNgay(@NgayBatDau date,@NgayKetThuc date)
-returns @tabletkngay table(
-	ThoiGian date,
-	DoanhThu money,
-	Thu money,
-	Chi money
-)
-as
-begin
-	insert into @tabletkngay 
-		select NgayThongKe, sum(DoanhThu), sum(Thu), SUM(Chi)
-		from PHIEUTHONGKE where NgayThongKe between @NgayBatDau and @NgayKetThuc
-		group by NgayThongKe order by NgayThongKe
-	return
-end
-go
-select * from PHIEUTHONGKE
-select *from fn_ThongKeDoanhThuTheoNgay ('2025-01-12', '2025-02-22')
-
---Hàm thống kê doanh thu, thu và chi theo từng tháng với Ngày bắt đầu thống kê và Ngày kết thúc thống kê nhập từ bàn phím
-go
-create function fn_ThongKeDoanhThuTheoThang(@NgayBatDau date,@NgayKetThuc date)
-returns @tabletkthang table(
-	ThoiGian nvarchar(7),
-	DoanhThu money,
-	Thu money,
-	Chi money
-)
-as
-begin
-	insert into @tabletkthang
-		select format(NgayThongKe, 'yyyy-MM') as 'ThoiGian', sum(DoanhThu) as 'DoanhThu', sum(Thu) as 'Thu', sum(Chi) as 'Chi'
-		from PHIEUTHONGKE where NgayThongKe between @NgayBatDau and @NgayKetThuc
-		group by format(NgayThongKe, 'yyyy-MM') order by format(NgayThongKe, 'yyyy-MM')
-	return
-end
-go
-select * from PHIEUTHONGKE
-select *from fn_ThongKeDoanhThuTheoThang ('2025-01-12', '2025-02-22')
---Hàm thống kê doanh thu, thu và chi theo từng năm với Ngày bắt đầu thống kê và Ngày kết thúc thống kê nhập từ bàn phím
-
-create function fn_ThongKeDoanhThuTheoNam(@NgayBatDau date,@NgayKetThuc date)
-returns @tabletknam table(
-	ThoiGian int,
-	DoanhThu money,
-	Thu money,
-	Chi money
-)
-as
-begin
-	insert into @tabletknam
-		select year(NgayThongKe) as 'ThoiGian', sum(DoanhThu) as 'DoanhThu', sum(Thu) as 'Thu', sum(Chi) as 'Chi'
-		from PHIEUTHONGKE where NgayThongKe between @NgayBatDau and @NgayKetThuc
-		group by year(NgayThongKe) order by year(NgayThongKe)
-	return
-end
-select * from PHIEUTHONGKE
-select *from fn_ThongKeDoanhThuTheoNam ('2020-12-05', '2025-02-22')

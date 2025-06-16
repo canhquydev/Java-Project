@@ -258,25 +258,9 @@ public class tabThongKe extends javax.swing.JPanel {
 
         String sql = "";
         switch (selected){
-            case "Ngày":
-            sql = "select NgayThongKe as ThoiGian, sum(DoanhThu) as DoanhThu, SUM(Thu) as Thu, SUM(Chi) as Chi " +
-            "from PHIEUTHONGKE " +
-            "where NgayThongKe between ? and ? " +
-            "group by NgayThongKe order by ThoiGian";
-            break;
-            case "Tháng":
-            sql = "select format(NgayThongKe, 'yyyy-MM') as ThoiGian, sum(DoanhThu) as DoanhThu, sum(Thu) as Thu, sum(Chi) as Chi " +
-            "from PHIEUTHONGKE " +
-            "where NgayThongKe between ? and ? " +
-            "group by FORMAT(NgayThongKe, 'yyyy-MM') order by ThoiGian";
-            break;
-
-            case "Năm":
-            sql = "select year(NgayThongKe) as ThoiGian, sum(DoanhThu) as DoanhThu, sum(Thu) as Thu, sum(Chi) as Chi " +
-            "from PHIEUTHONGKE " +
-            "where NgayThongKe between ? and ? " +
-            "group by year(NgayThongKe) order by ThoiGian";
-            break;
+            case "Ngày" -> sql = "select *from fn_ThongKeDoanhThuTheoNgay(?, ?)";
+            case "Tháng" -> sql = "select *from fn_ThongKeDoanhThuTheoThang(?, ?)";
+            case "Năm" -> sql = "select *from fn_ThongKeDoanhThuTheoNam(?, ?)";
         }
         try (Connection conn = CRUD.ConnectSQL.getConnection();
             PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -321,25 +305,9 @@ public class tabThongKe extends javax.swing.JPanel {
 
         String sql = "";
         switch (selected){
-            case "Ngày":
-            sql = "select NgayThongKe as ThoiGian, sum(DoanhThu) as DoanhThu, sum(Thu) as Thu, SUM(Chi) as Chi " +
-            "from PHIEUTHONGKE " +
-            "where NgayThongKe between ? and ? " +
-            "group by NgayThongKe order by ThoiGian";
-            break;
-            case "Tháng":
-            sql = "select format(NgayThongKe, 'yyyy-MM') as ThoiGian, sum(DoanhThu) as DoanhThu, sum(Thu) as Thu, sum(Chi) as Chi " +
-            "from PHIEUTHONGKE " +
-            "where NgayThongKe between ? and ? " +
-            "group by format(NgayThongKe, 'yyyy-MM') order by ThoiGian";
-            break;
-
-            case "Năm":
-            sql = "select year(NgayThongKe) as ThoiGian, sum(DoanhThu) as DoanhThu, sum(Thu) as Thu, sum(Chi) as Chi " +
-            "from PHIEUTHONGKE " +
-            "where NgayThongKe between ? and ? " +
-            "group by year(NgayThongKe) order by ThoiGian";
-            break;
+            case "Ngày" -> sql = "select *from fn_ThongKeDoanhThuTheoNgay(?, ?)";
+            case "Tháng" -> sql = "select *from fn_ThongKeDoanhThuTheoThang(?, ?)";
+            case "Năm" -> sql = "select *from fn_ThongKeDoanhThuTheoNam(?, ?)";
         }
         try (Connection conn = CRUD.ConnectSQL.getConnection();
             PreparedStatement stmt = conn.prepareStatement(sql)) {
