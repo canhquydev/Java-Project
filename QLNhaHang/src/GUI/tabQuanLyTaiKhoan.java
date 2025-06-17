@@ -167,8 +167,6 @@ public class tabQuanLyTaiKhoan extends javax.swing.JPanel {
 
         cbLoaiTaiKhoan.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
 
-        txtPass.setText("jPasswordField1");
-
         cbTrangThai.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
 
         txtNgayTao.setEditable(false);
@@ -482,7 +480,7 @@ public class tabQuanLyTaiKhoan extends javax.swing.JPanel {
 
         int maTaiKhoan = Integer.parseInt(tableModel.getValueAt(selectedRow, 0).toString());
         for(TaiKhoan tk: layDuLieu.getDsTaiKhoan()){
-            if(tk.getMaTaiKhoan() == maTaiKhoan){
+            if(tk.getMaTaiKhoan() == maTaiKhoan && tk.getMaNhanVien() == maNV){
                 JOptionPane.showMessageDialog(this, "Tài khoản đang được sử dụng, không thể xoá", "Lỗi", JOptionPane.ERROR_MESSAGE);
                 return;
             }
@@ -629,7 +627,7 @@ public class tabQuanLyTaiKhoan extends javax.swing.JPanel {
         selectedRow = tbHienThiTaiKhoan.getSelectedRow();
         if(selectedRow >= 0){
             txtUser.setText(tbHienThiTaiKhoan.getValueAt(selectedRow, 1).toString().trim());
-            txtPass.setText(tbHienThiTaiKhoan.getValueAt(selectedRow, 2).toString());
+            txtPass.setText(tbHienThiTaiKhoan.getValueAt(selectedRow, 2).toString().trim());
             txtNgayTao.setText(tbHienThiTaiKhoan.getValueAt(selectedRow, 3).toString());
             cbTrangThai.setSelectedItem(tbHienThiTaiKhoan.getValueAt(selectedRow, 4).toString());
             cbLoaiTaiKhoan.setSelectedItem(tbHienThiTaiKhoan.getValueAt(selectedRow, 5).toString().trim());
