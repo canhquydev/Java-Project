@@ -425,13 +425,13 @@ INSERT INTO NHANVIEN (HoTen, NgaySinh, GioiTinh, SoDienThoai, DiaChi, ChucVu, Ma
 
 
 INSERT INTO TAIKHOAN (TenDangNhap, MatKhau, NgayTao, TrangThai, LoaiTaiKhoan, MaNhanVien) VALUES
-('qlns', '123456pass', '2025-04-16', N'Hoạt động', N'Quản lý nhân sự', 1),
-('qlkb', '123456pass', '2025-04-16', N'Hoạt động', N'Quản lý kho và bếp', 2),
-('letan1', '123456pass', '2025-04-17', N'Hoạt động', N'Lễ tân', 3),
-('letan2', '123456pass', '2025-04-17', N'Hoạt động', N'Lễ tân', 4),
-('letan3', '123456pass', '2025-04-18', N'Hoạt động', N'Lễ tân', 5),
-('letan4', '123456pass', '2025-04-18', N'Hoạt động', N'Lễ tân', 6),
-('letan5', '123456pass', '2025-04-19', N'Hoạt động', N'Lễ tân', 7);
+('qlns', '123456', '2025-04-16', N'Hoạt động', N'Quản lý nhân sự', 1),
+('qlkb', '123456', '2025-04-16', N'Hoạt động', N'Quản lý kho và bếp', 2),
+('letan1', '123456', '2025-04-17', N'Hoạt động', N'Lễ tân', 3),
+('letan2', '123456', '2025-04-17', N'Hoạt động', N'Lễ tân', 4),
+('letan3', '123456', '2025-04-18', N'Hoạt động', N'Lễ tân', 5),
+('letan4', '123456', '2025-04-18', N'Hoạt động', N'Lễ tân', 6),
+('letan5', '123456', '2025-04-19', N'Hoạt động', N'Lễ tân', 7);
 
 INSERT INTO PHIEUNHAPHANG (NgayTao, NhaCungCap, MaNhanVienNhap) VALUES
 ('2024-04-02', N'TP Sạch An Phát', 3),
